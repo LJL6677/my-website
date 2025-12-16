@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《测量与地图学》地图学应用小组汇报评分系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入SheetJS库用于Excel导出 -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        h1 i {
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .chapter-info {
+            background-color: #e8f4fc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 15px;
+            color: #2c3e50;
+            border-left: 4px solid #3498db;
+        }
+        
+        .content-area {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 25px;
+            gap: 25px;
+        }
+        
+        .scoring-section {
+            flex: 1;
+            min-width: 300px;
+            background-color: #f9fbfd;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .results-section {
+            flex: 2;
+            min-width: 300px;
+            background-color: #f9fbfd;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .section-title {
+            color: #2c3e50;
+            font-size: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #3498db;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            color: #3498db;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        
+        select, input, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #d1d9e6;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+        
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .criteria-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 18px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+        }
+        
+        .criteria-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .criteria-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .max-score {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .score-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .score-input input {
+            width: 80px;
+            text-align: center;
+        }
+        
+        .score-slider {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            background: #dfe6e9;
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        .score-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .total-score {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 25px;
+        }
+        
+        .total-score-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin: 10px 0;
+            color: #3498db;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(to right, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .submit-btn:hover {
+            background: linear-gradient(to right, #2980b9, #1f639e);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .results-table th {
+            background-color: #2c3e50;
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .results-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .results-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .results-table tr:hover {
+            background-color: #e8f4fc;
+        }
+        
+        .final-score {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .average-display {
+            background-color: #2c3e50;
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 25px;
+            text-align: center;
+        }
+        
+        .average-value {
+            font-size: 42px;
+            font-weight: 700;
+            margin: 15px 0;
+            color: #2ecc71;
+        }
+        
+        .instructions {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .instructions h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .group-input-area {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            align-items: center;
+        }
+        
+        .group-input {
+            flex: 1;
+        }
+        
+        .group-select-btn {
+            padding: 12px 25px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .group-select-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .vote-stats {
+            background-color: #e8f4fc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            border-left: 4px solid #3498db;
+        }
+        
+        .vote-stats h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .vote-count {
+            font-size: 36px;
+            font-weight: 700;
+            color: #3498db;
+            margin: 10px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .content-area {
+                flex-direction: column;
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .group-input-area {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+        }
+        
+        .current-group-display {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            display: inline-block;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .refresh-btn {
+            background: linear-gradient(to right, #f39c12, #e67e22);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .refresh-btn:hover {
+            background: linear-gradient(to right, #e67e22, #d35400);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.3);
+        }
+        
+        .export-btn {
+            background: linear-gradient(to right, #2ecc71, #27ae60);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .export-btn:hover {
+            background: linear-gradient(to right, #27ae60, #219653);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+        }
+        
+        .import-btn {
+            background: linear-gradient(to right, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .import-btn:hover {
+            background: linear-gradient(to right, #8e44ad, #7d3c98);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(155, 89, 182, 0.3);
+        }
+        
+        .clear-btn {
+            background: linear-gradient(to right, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .clear-btn:hover {
+            background: linear-gradient(to right, #c0392b, #a93226);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .student-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .comment-section {
+            margin-top: 20px;
+        }
+        
+        .data-management {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #9b59b6;
+        }
+        
+        .data-management h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .warning-note {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            color: #721c24;
+        }
+        
+        .success-note {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            color: #155724;
+        }
+        
+        .data-info {
+            background-color: #e8f4fc;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-map-marked-alt"></i> 《测量与地图学》地图学应用小组汇报评分系统</h1>
+            <p class="subtitle">第十六章第五节：地图学应用 - 记名小组汇报评分系统</p>
+            <div class="chapter-info">
+                <p><i class="fas fa-info-circle"></i> 请根据评分标准为各小组的课堂展示进行评分。系统将自动统计评分数据并计算平均分作为最终成绩。</p>
+            </div>
+        </header>
+        
+        <div class="content-area">
+            <div class="scoring-section">
+                <h2 class="section-title"><i class="fas fa-edit"></i> 评分区域</h2>
+                
+                <div class="student-info">
+                    <div class="form-group">
+                        <label for="studentId"><i class="fas fa-id-card"></i> 学号</label>
+                        <input type="text" id="studentId" placeholder="请输入您的学号" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="studentName"><i class="fas fa-user"></i> 姓名</label>
+                        <input type="text" id="studentName" placeholder="请输入您的姓名" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="groupNumber"><i class="fas fa-users"></i> 选择汇报小组</label>
+                    <select id="groupNumber">
+                        <option value="">请选择小组</option>
+                        <option value="第1组">第1组</option>
+                        <option value="第2组">第2组</option>
+                        <option value="第3组">第3组</option>
+                        <option value="第4组">第4组</option>
+                        <option value="第5组">第5组</option>
+                        <option value="第6组">第6组</option>
+                        <option value="第7组">第7组</option>
+                        <option value="第8组">第8组</option>
+                        <option value="第9组">第9组</option>
+                        <option value="第10组">第10组</option>
+                        <option value="第11组">第11组</option>
+                        <option value="第12组">第12组</option>
+                        <option value="第13组">第13组</option>
+                        <option value="第14组">第14组</option>
+                        <option value="第15组">第15组</option>
+                        <option value="第16组">第16组</option>
+                        <option value="第17组">第17组</option>
+                        <option value="第18组">第18组</option>
+                        <option value="第19组">第19组</option>
+                        <option value="第20组">第20组</option>
+                    </select>
+                </div>
+                
+                <div class="current-group-display" id="currentGroupDisplay">
+                    当前未选择小组
+                </div>
+                
+                <div class="criteria-item">
+                    <div class="criteria-header">
+                        <span class="criteria-name">基本素质 (20分)</span>
+                        <span class="max-score">满分: 20分</span>
+                    </div>
+                    <p style="font-size: 14px; color: #555; margin-bottom: 12px;">仪表整洁、教态大方、亲切、有感染力，精神饱满、能较好的运用动作、手势表达对讲稿的理解。普通话标准，语言准确、生动、精炼、流畅；板书规范，设计合理；熟练恰当使用现代教育技术手段。</p>
+                    <div class="score-input">
+                        <input type="number" id="basicScore" min="0" max="20" value="0" class="score-number">
+                        <input type="range" min="0" max="20" value="0" class="score-slider" data-target="basicScore">
+                    </div>
+                </div>
+                
+                <div class="criteria-item">
+                    <div class="criteria-header">
+                        <span class="criteria-name">演讲内容 (30分)</span>
+                        <span class="max-score">满分: 30分</span>
+                    </div>
+                    <p style="font-size: 14px; color: #555; margin-bottom: 12px;">深入研读教材等参考资料，展示内容选取合理；体现教学内容的整体性和关联性；展示内容丰富、完整，具有前沿性和创新性，具有典型理论与案例相结合的分析。</p>
+                    <div class="score-input">
+                        <input type="number" id="contentScore" min="0" max="30" value="0" class="score-number">
+                        <input type="range" min="0" max="30" value="0" class="score-slider" data-target="contentScore">
+                    </div>
+                </div>
+                
+                <div class="criteria-item">
+                    <div class="criteria-header">
+                        <span class="criteria-name">展示过程 (30分)</span>
+                        <span class="max-score">满分: 30分</span>
+                    </div>
+                    <p style="font-size: 14px; color: #555; margin-bottom: 12px;">小组分工明确，组员全程参与，展示过程结构严谨，层次清晰，过渡合理，自然流畅，时间把握较好。具有较好的应变及驾驭教材等参考资料和课堂的能力；以学生为主体，学生参与度高，课堂民主和谐，善于营造轻松愉快的课堂氛围。</p>
+                    <div class="score-input">
+                        <input type="number" id="processScore" min="0" max="30" value="0" class="score-number">
+                        <input type="range" min="0" max="30" value="0" class="score-slider" data-target="processScore">
+                    </div>
+                </div>
+                
+                <div class="criteria-item">
+                    <div class="criteria-header">
+                        <span class="criteria-name">课件制作 (20分)</span>
+                        <span class="max-score">满分: 20分</span>
+                    </div>
+                    <p style="font-size: 14px; color: #555; margin-bottom: 12px;">内容完整清晰，有代表性、真实有效、新颖，能准确地表达内容，重点突出。课件的设计新颖，具有较强的创新性，有趣味性；讲稿完整，语句通顺，格式规范。合理使用了文本、图片、表格、图表、图形、动画、动作等表现工具。</p>
+                    <div class="score-input">
+                        <input type="number" id="presentationScore" min="0" max="20" value="0" class="score-number">
+                        <input type="range" min="0" max="20" value="0" class="score-slider" data-target="presentationScore">
+                    </div>
+                </div>
+                
+                <div class="comment-section">
+                    <div class="form-group">
+                        <label for="comment"><i class="fas fa-comment"></i> 总评语</label>
+                        <textarea id="comment" placeholder="请输入对该小组汇报的总体评价和建议..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="total-score">
+                    <div>当前评分总分</div>
+                    <div class="total-score-value" id="currentTotal">0</div>
+                    <div>满分：100分</div>
+                </div>
+                
+                <button class="submit-btn" id="submitScore">
+                    <i class="fas fa-paper-plane"></i> 提交评分
+                </button>
+                
+                <div class="data-management">
+                    <h3><i class="fas fa-database"></i> 数据管理</h3>
+                    <p>所有评分数据保存在本地浏览器中，请定期导出备份。</p>
+                    
+                    <div class="button-group">
+                        <button class="import-btn" id="importData">
+                            <i class="fas fa-file-import"></i> 导入数据
+                        </button>
+                        <button class="export-btn" id="exportData">
+                            <i class="fas fa-file-export"></i> 导出数据
+                        </button>
+                        <button class="clear-btn" id="clearData">
+                            <i class="fas fa-trash-alt"></i> 清除数据
+                        </button>
+                        <button class="refresh-btn" id="refreshResults">
+                            <i class="fas fa-sync-alt"></i> 刷新结果
+                        </button>
+                    </div>
+                    
+                    <input type="file" id="importFile" accept=".xlsx,.xls,.json" class="file-input">
+                    
+                    <div class="data-info">
+                        <p><i class="fas fa-info-circle"></i> 数据统计：</p>
+                        <p>当前存储评分记录：<span id="totalRecords">0</span> 条</p>
+                        <p>涉及小组数：<span id="totalGroups">0</span> 个</p>
+                        <p>涉及评分人数：<span id="totalStudents">0</span> 人</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results-section">
+                <h2 class="section-title"><i class="fas fa-chart-bar"></i> 评分结果</h2>
+                
+                <div class="vote-stats">
+                    <h3><i class="fas fa-vote-yea"></i> 评分统计</h3>
+                    <div>当前小组：<strong id="displayGroupName">未选择</strong></div>
+                    <div class="vote-count" id="voteCount">0</div>
+                    <div>位同学已评分</div>
+                </div>
+                
+                <div style="overflow-x: auto; max-height: 400px; overflow-y: auto;">
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>学号</th>
+                                <th>姓名</th>
+                                <th>基本素质</th>
+                                <th>演讲内容</th>
+                                <th>展示过程</th>
+                                <th>课件制作</th>
+                                <th>总分</th>
+                                <th>评语</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scoresTable">
+                            <!-- 评分记录将在这里动态生成 -->
+                            <tr><td colspan="8" style="text-align: center; padding: 30px;">暂无评分记录</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="average-display">
+                    <div>小组最终平均分</div>
+                    <div class="average-value" id="groupAverage">0.0</div>
+                    <div>基于 <span id="totalVotes">0</span> 位同学的评分</div>
+                </div>
+                
+                <div class="instructions" style="margin-top: 20px;">
+                    <h3><i class="fas fa-lightbulb"></i> 使用说明</h3>
+                    <ul>
+                        <li><strong>记名评分：</strong>需填写学号和姓名，所有评分将记录评分人信息</li>
+                        <li><strong>小组选择：</strong>从1-20组中选择要评分的小组</li>
+                        <li><strong>数据保存：</strong>评分数据保存在浏览器本地存储中</li>
+                        <li><strong>数据导出：</strong>导出Excel文件，文件名为"学号_姓名.xlsx"</li>
+                        <li><strong>数据导入：</strong>可以导入其他同学的评分数据进行合并</li>
+                        <li><strong>GitHub部署：</strong>将此文件上传到GitHub仓库，开启GitHub Pages即可分享给全班同学</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-clipboard-check"></i> GitHub Pages 部署指南</h3>
+            <ul>
+                <li><strong>步骤1：</strong>创建GitHub账号（如已有则跳过）</li>
+                <li><strong>步骤2：</strong>新建仓库，将本文件命名为 <code>index.html</code> 上传</li>
+                <li><strong>步骤3：</strong>进入仓库设置 → Pages → 选择main分支 → 保存</li>
+                <li><strong>步骤4：</strong>等待几分钟，获得公开链接（如：https://用户名.github.io/仓库名）</li>
+                <li><strong>步骤5：</strong>将链接分享给全班同学，所有人均可访问并评分</li>
+                <li><strong>数据汇总：</strong>每位同学评分后导出Excel文件发送给老师，老师导入合并所有数据</li>
+            </ul>
+        </div>
+        
+        <footer>
+            <p>《测量与地图学》地图学应用小组汇报记名评分系统 &copy; 2023 | 第十六章第五节：地图学应用</p>
+            <p>技术支持：本地存储 + Excel导入导出 | 部署平台：GitHub Pages</p>
+        </footer>
+    </div>
+
+    <script>
+        // 当前选中的小组
+        let currentGroup = "";
+        
+        // 存储所有评分数据
+        let allScores = {};
+        
+        // 从本地存储加载数据
+        function loadScores() {
+            const savedScores = localStorage.getItem('cartographyNamedScores');
+            if (savedScores) {
+                allScores = JSON.parse(savedScores);
+                updateResultsDisplay();
+                updateDataStats();
+            } else {
+                // 初始化空数据
+                allScores = {};
+                updateDataStats();
+            }
+        }
+        
+        // 保存数据到本地存储
+        function saveScores() {
+            localStorage.setItem('cartographyNamedScores', JSON.stringify(allScores));
+            updateDataStats();
+        }
+        
+        // 更新数据统计
+        function updateDataStats() {
+            let totalRecords = 0;
+            let totalGroups = Object.keys(allScores).length;
+            let studentSet = new Set();
+            
+            // 计算总记录数和独立学生数
+            Object.values(allScores).forEach(groupScores => {
+                totalRecords += groupScores.length;
+                groupScores.forEach(score => {
+                    studentSet.add(score.studentId + "_" + score.studentName);
+                });
+            });
+            
+            document.getElementById('totalRecords').textContent = totalRecords;
+            document.getElementById('totalGroups').textContent = totalGroups;
+            document.getElementById('totalStudents').textContent = studentSet.size;
+        }
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            loadScores();
+            
+            // 小组选择事件
+            document.getElementById('groupNumber').addEventListener('change', function() {
+                const groupInput = this.value;
+                
+                if (!groupInput) {
+                    currentGroup = "";
+                    document.getElementById('currentGroupDisplay').textContent = "当前未选择小组";
+                    document.getElementById('displayGroupName').textContent = "未选择";
+                    return;
+                }
+                
+                currentGroup = groupInput;
+                document.getElementById('currentGroupDisplay').textContent = `当前评分小组：${currentGroup}`;
+                document.getElementById('displayGroupName').textContent = currentGroup;
+                
+                // 初始化该小组的数据（如果不存在）
+                if (!allScores[currentGroup]) {
+                    allScores[currentGroup] = [];
+                }
+                
+                // 更新结果显示
+                updateResultsDisplay();
+            });
+            
+            // 分数输入框与滑块的同步
+            document.querySelectorAll('.score-number').forEach(input => {
+                input.addEventListener('input', function() {
+                    const targetId = this.id;
+                    const slider = document.querySelector(`.score-slider[data-target="${targetId}"]`);
+                    slider.value = this.value;
+                    updateTotalScore();
+                });
+            });
+            
+            document.querySelectorAll('.score-slider').forEach(slider => {
+                slider.addEventListener('input', function() {
+                    const targetId = this.dataset.target;
+                    const numberInput = document.getElementById(targetId);
+                    numberInput.value = this.value;
+                    updateTotalScore();
+                });
+            });
+            
+            // 提交评分
+            document.getElementById('submitScore').addEventListener('click', submitScore);
+            
+            // 刷新结果按钮
+            document.getElementById('refreshResults').addEventListener('click', function() {
+                loadScores();
+                alert('评分结果已刷新');
+            });
+            
+            // 导入数据按钮
+            document.getElementById('importData').addEventListener('click', function() {
+                document.getElementById('importFile').click();
+            });
+            
+            // 导出数据按钮
+            document.getElementById('exportData').addEventListener('click', exportDataToExcel);
+            
+            // 清除数据按钮
+            document.getElementById('clearData').addEventListener('click', clearAllData);
+            
+            // 导入文件处理
+            document.getElementById('importFile').addEventListener('change', importDataFromFile);
+            
+            // 初始更新总分
+            updateTotalScore();
+        });
+        
+        // 更新总分显示
+        function updateTotalScore() {
+            const basicScore = parseInt(document.getElementById('basicScore').value) || 0;
+            const contentScore = parseInt(document.getElementById('contentScore').value) || 0;
+            const processScore = parseInt(document.getElementById('processScore').value) || 0;
+            const presentationScore = parseInt(document.getElementById('presentationScore').value) || 0;
+            
+            const total = basicScore + contentScore + processScore + presentationScore;
+            document.getElementById('currentTotal').textContent = total;
+        }
+        
+        // 提交评分
+        function submitScore() {
+            // 获取学生信息
+            const studentId = document.getElementById('studentId').value.trim();
+            const studentName = document.getElementById('studentName').value.trim();
+            
+            // 检查是否已选择小组
+            if (!currentGroup) {
+                alert('请先选择要评分的小组');
+                return;
+            }
+            
+            // 验证学生信息
+            if (!studentId || !studentName) {
+                alert('请填写学号和姓名');
+                return;
+            }
+            
+            const basicScore = parseInt(document.getElementById('basicScore').value);
+            const contentScore = parseInt(document.getElementById('contentScore').value);
+            const processScore = parseInt(document.getElementById('processScore').value);
+            const presentationScore = parseInt(document.getElementById('presentationScore').value);
+            const comment = document.getElementById('comment').value.trim();
+            
+            // 验证输入
+            if (isNaN(basicScore) || basicScore < 0 || basicScore > 20) {
+                alert('请为"基本素质"项输入0-20之间的有效分数');
+                return;
+            }
+            
+            if (isNaN(contentScore) || contentScore < 0 || contentScore > 30) {
+                alert('请为"演讲内容"项输入0-30之间的有效分数');
+                return;
+            }
+            
+            if (isNaN(processScore) || processScore < 0 || processScore > 30) {
+                alert('请为"展示过程"项输入0-30之间的有效分数');
+                return;
+            }
+            
+            if (isNaN(presentationScore) || presentationScore < 0 || presentationScore > 20) {
+                alert('请为"课件制作"项输入0-20之间的有效分数');
+                return;
+            }
+            
+            // 检查该学生是否已经为该小组评过分
+            const existingScoreIndex = allScores[currentGroup].findIndex(
+                score => score.studentId === studentId && score.studentName === studentName
+            );
+            
+            if (existingScoreIndex !== -1) {
+                if (!confirm(`您已经为${currentGroup}评过分，是否要覆盖之前的评分？`)) {
+                    return;
+                }
+                // 移除之前的评分
+                allScores[currentGroup].splice(existingScoreIndex, 1);
+            }
+            
+            // 创建评分对象
+            const scoreEntry = {
+                studentId: studentId,
+                studentName: studentName,
+                group: currentGroup,
+                basic: basicScore,
+                content: contentScore,
+                process: processScore,
+                presentation: presentationScore,
+                total: basicScore + contentScore + processScore + presentationScore,
+                comment: comment || "无评语",
+                timestamp: new Date().toLocaleString()
+            };
+            
+            // 添加到当前小组的评分数组
+            allScores[currentGroup].push(scoreEntry);
+            
+            // 保存到本地存储
+            saveScores();
+            
+            // 更新结果显示
+            updateResultsDisplay();
+            
+            // 重置表单（保留学生信息）
+            resetScoringForm(false);
+            
+            alert(`评分已提交！${studentName}同学对${currentGroup}的评分已保存。当前平均分：${calculateGroupAverage(currentGroup).toFixed(1)}`);
+        }
+        
+        // 重置评分表单
+        function resetScoringForm(resetStudentInfo = false) {
+            if (resetStudentInfo) {
+                document.getElementById('studentId').value = '';
+                document.getElementById('studentName').value = '';
+            }
+            
+            document.getElementById('basicScore').value = 0;
+            document.getElementById('contentScore').value = 0;
+            document.getElementById('processScore').value = 0;
+            document.getElementById('presentationScore').value = 0;
+            document.getElementById('comment').value = '';
+            
+            // 同步滑块
+            document.querySelectorAll('.score-slider').forEach(slider => {
+                const targetId = slider.dataset.target;
+                document.getElementById(targetId).value = 0;
+                slider.value = 0;
+            });
+            
+            updateTotalScore();
+        }
+        
+        // 更新结果显示
+        function updateResultsDisplay() {
+            const scoresTable = document.getElementById('scoresTable');
+            
+            // 如果没有选择小组或该小组没有评分记录
+            if (!currentGroup || !allScores[currentGroup] || allScores[currentGroup].length === 0) {
+                scoresTable.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 30px;">暂无评分记录</td></tr>';
+                document.getElementById('groupAverage').textContent = '0.0';
+                document.getElementById('totalVotes').textContent = '0';
+                document.getElementById('voteCount').textContent = '0';
+                return;
+            }
+            
+            const groupScores = allScores[currentGroup];
+            
+            // 清空表格内容
+            scoresTable.innerHTML = '';
+            
+            // 添加评分记录
+            groupScores.forEach((score, index) => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${score.studentId}</td>
+                    <td>${score.studentName}</td>
+                    <td>${score.basic}</td>
+                    <td>${score.content}</td>
+                    <td>${score.process}</td>
+                    <td>${score.presentation}</td>
+                    <td class="final-score">${score.total}</td>
+                    <td style="max-width: 200px; word-break: break-word;">${score.comment}</td>
+                `;
+                
+                scoresTable.appendChild(row);
+            });
+            
+            // 计算并显示平均分
+            const average = calculateGroupAverage(currentGroup);
+            document.getElementById('groupAverage').textContent = average.toFixed(1);
+            document.getElementById('totalVotes').textContent = groupScores.length;
+            document.getElementById('voteCount').textContent = groupScores.length;
+        }
+        
+        // 计算小组平均分
+        function calculateGroupAverage(groupName) {
+            if (!allScores[groupName] || allScores[groupName].length === 0) {
+                return 0;
+            }
+            
+            const groupScores = allScores[groupName];
+            const total = groupScores.reduce((sum, score) => sum + score.total, 0);
+            return total / groupScores.length;
+        }
+        
+        // 导出数据到Excel
+        function exportDataToExcel() {
+            // 获取学生信息
+            const studentId = document.getElementById('studentId').value.trim();
+            const studentName = document.getElementById('studentName').value.trim();
+            
+            if (!studentId || !studentName) {
+                alert('请先填写学号和姓名，以便生成导出文件');
+                return;
+            }
+            
+            // 如果没有数据，提示
+            if (Object.keys(allScores).length === 0) {
+                alert('暂无评分数据可导出');
+                return;
+            }
+            
+            try {
+                // 创建工作簿
+                const wb = XLSX.utils.book_new();
+                
+                // 为每个小组创建一个工作表
+                Object.keys(allScores).sort().forEach(groupName => {
+                    const groupScores = allScores[groupName];
+                    
+                    if (groupScores.length > 0) {
+                        // 准备工作表数据
+                        const wsData = [
+                            [`${groupName} 评分记录`],
+                            ['导出时间', new Date().toLocaleString()],
+                            ['导出人', `${studentId}_${studentName}`],
+                            [], // 空行
+                            ['学号', '姓名', '基本素质', '演讲内容', '展示过程', '课件制作', '总分', '评语', '评分时间']
+                        ];
+                        
+                        // 添加评分数据
+                        groupScores.forEach(score => {
+                            wsData.push([
+                                score.studentId,
+                                score.studentName,
+                                score.basic,
+                                score.content,
+                                score.process,
+                                score.presentation,
+                                score.total,
+                                score.comment,
+                                score.timestamp
+                            ]);
+                        });
+                        
+                        // 添加统计行
+                        wsData.push([]);
+                        wsData.push(['统计', '', '', '', '', '', '', '']);
+                        wsData.push(['平均分', '', 
+                            calculateAverage(groupScores, 'basic'), 
+                            calculateAverage(groupScores, 'content'), 
+                            calculateAverage(groupScores, 'process'), 
+                            calculateAverage(groupScores, 'presentation'), 
+                            calculateGroupAverage(groupName), 
+                            '', '']);
+                        wsData.push(['最高分', '', 
+                            calculateMax(groupScores, 'basic'), 
+                            calculateMax(groupScores, 'content'), 
+                            calculateMax(groupScores, 'process'), 
+                            calculateMax(groupScores, 'presentation'), 
+                            calculateMax(groupScores, 'total'), 
+                            '', '']);
+                        wsData.push(['最低分', '', 
+                            calculateMin(groupScores, 'basic'), 
+                            calculateMin(groupScores, 'content'), 
+                            calculateMin(groupScores, 'process'), 
+                            calculateMin(groupScores, 'presentation'), 
+                            calculateMin(groupScores, 'total'), 
+                            '', '']);
+                        
+                        // 创建工作表
+                        const ws = XLSX.utils.aoa_to_sheet(wsData);
+                        
+                        // 设置列宽
+                        const colWidths = [
+                            {wch: 12}, // 学号
+                            {wch: 10}, // 姓名
+                            {wch: 10}, // 基本素质
+                            {wch: 10}, // 演讲内容
+                            {wch: 10}, // 展示过程
+                            {wch: 10}, // 课件制作
+                            {wch: 8},  // 总分
+                            {wch: 30}, // 评语
+                            {wch: 20}  // 评分时间
+                        ];
+                        ws['!cols'] = colWidths;
+                        
+                        // 将工作表添加到工作簿
+                        XLSX.utils.book_append_sheet(wb, ws, groupName.substring(0, 31)); // 工作表名称最多31个字符
+                    }
+                });
+                
+                // 生成文件名：学号_姓名.xlsx
+                const fileName = `${studentId}_${studentName}_评分数据.xlsx`;
+                
+                // 导出Excel文件
+                XLSX.writeFile(wb, fileName);
+                
+                alert(`评分数据已导出为 ${fileName}`);
+                
+            } catch (error) {
+                console.error('导出Excel失败:', error);
+                alert('导出失败，请重试或使用JSON格式导出');
+                
+                // 备选方案：导出为JSON
+                exportDataAsJSON(studentId, studentName);
+            }
+        }
+        
+        // 辅助函数：计算平均分
+        function calculateAverage(scores, field) {
+            if (scores.length === 0) return 0;
+            const sum = scores.reduce((total, score) => total + score[field], 0);
+            return (sum / scores.length).toFixed(1);
+        }
+        
+        // 辅助函数：计算最高分
+        function calculateMax(scores, field) {
+            if (scores.length === 0) return 0;
+            return Math.max(...scores.map(score => score[field]));
+        }
+        
+        // 辅助函数：计算最低分
+        function calculateMin(scores, field) {
+            if (scores.length === 0) return 0;
+            return Math.min(...scores.map(score => score[field]));
+        }
+        
+        // 备选方案：导出为JSON
+        function exportDataAsJSON(studentId, studentName) {
+            const dataStr = JSON.stringify(allScores, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `${studentId}_${studentName}_评分数据.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+        
+        // 从文件导入数据
+        function importDataFromFile(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = e.target.result;
+                    let importedData;
+                    
+                    // 判断文件类型
+                    if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                        // 处理Excel文件
+                        const workbook = XLSX.read(data, {type: 'binary'});
+                        importedData = parseExcelData(workbook);
+                    } else if (file.name.endsWith('.json')) {
+                        // 处理JSON文件
+                        importedData = JSON.parse(data);
+                    } else {
+                        alert('不支持的文件格式，请导入.xlsx、.xls或.json文件');
+                        return;
+                    }
+                    
+                    if (!confirm(`导入数据将合并到现有评分记录中，确定要继续吗？`)) {
+                        event.target.value = '';
+                        return;
+                    }
+                    
+                    // 合并数据
+                    mergeImportedData(importedData);
+                    
+                    // 保存到本地存储
+                    saveScores();
+                    
+                    // 更新结果显示
+                    if (currentGroup) {
+                        updateResultsDisplay();
+                    }
+                    
+                    alert('评分数据导入成功！');
+                    
+                } catch (error) {
+                    console.error('导入失败:', error);
+                    alert('导入失败：文件格式不正确或已损坏');
+                }
+                
+                event.target.value = '';
+            };
+            
+            if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                reader.readAsBinaryString(file);
+            } else {
+                reader.readAsText(file);
+            }
+        }
+        
+        // 解析Excel数据
+        function parseExcelData(workbook) {
+            const result = {};
+            
+            // 遍历所有工作表
+            workbook.SheetNames.forEach(sheetName => {
+                const worksheet = workbook.Sheets[sheetName];
+                const data = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                
+                // 查找数据开始行（跳过标题行）
+                let startRow = 0;
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i] && data[i].length >= 8 && 
+                        data[i][0] === '学号' && data[i][1] === '姓名') {
+                        startRow = i + 1;
+                        break;
+                    }
+                }
+                
+                // 提取评分数据
+                const groupScores = [];
+                for (let i = startRow; i < data.length; i++) {
+                    const row = data[i];
+                    if (!row || row.length < 8 || typeof row[0] !== 'string') continue;
+                    
+                    // 检查是否是统计行
+                    if (row[0] === '平均分' || row[0] === '最高分' || row[0] === '最低分' || row[0] === '统计') {
+                        continue;
+                    }
+                    
+                    const scoreEntry = {
+                        studentId: String(row[0] || '').trim(),
+                        studentName: String(row[1] || '').trim(),
+                        group: sheetName,
+                        basic: parseInt(row[2]) || 0,
+                        content: parseInt(row[3]) || 0,
+                        process: parseInt(row[4]) || 0,
+                        presentation: parseInt(row[5]) || 0,
+                        total: parseInt(row[6]) || 0,
+                        comment: String(row[7] || '').trim(),
+                        timestamp: row[8] || new Date().toLocaleString()
+                    };
+                    
+                    // 计算总分（如果Excel中没有总分）
+                    if (!scoreEntry.total || isNaN(scoreEntry.total)) {
+                        scoreEntry.total = scoreEntry.basic + scoreEntry.content + scoreEntry.process + scoreEntry.presentation;
+                    }
+                    
+                    groupScores.push(scoreEntry);
+                }
+                
+                if (groupScores.length > 0) {
+                    result[sheetName] = groupScores;
+                }
+            });
+            
+            return result;
+        }
+        
+        // 合并导入的数据
+        function mergeImportedData(importedData) {
+            Object.keys(importedData).forEach(groupName => {
+                if (!allScores[groupName]) {
+                    allScores[groupName] = [];
+                }
+                
+                const existingScores = allScores[groupName];
+                const newScores = importedData[groupName];
+                
+                newScores.forEach(newScore => {
+                    // 检查是否已存在相同学生对该小组的评分
+                    const existingIndex = existingScores.findIndex(
+                        score => score.studentId === newScore.studentId && 
+                                score.studentName === newScore.studentName
+                    );
+                    
+                    if (existingIndex !== -1) {
+                        // 替换现有评分
+                        existingScores[existingIndex] = newScore;
+                    } else {
+                        // 添加新评分
+                        existingScores.push(newScore);
+                    }
+                });
+            });
+        }
+        
+        // 清除所有数据
+        function clearAllData() {
+            if (!confirm('确定要清除所有评分数据吗？此操作不可撤销！')) {
+                return;
+            }
+            
+            allScores = {};
+            localStorage.removeItem('cartographyNamedScores');
+            
+            // 更新显示
+            updateResultsDisplay();
+            updateDataStats();
+            
+            // 重置表单
+            resetScoringForm(true);
+            
+            alert('所有评分数据已清除');
+        }
+        
+        // 页面加载时检查URL参数中的小组信息
+        function checkUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const groupParam = urlParams.get('group');
+            
+            if (groupParam) {
+                currentGroup = decodeURIComponent(groupParam);
+                document.getElementById('groupNumber').value = currentGroup;
+                document.getElementById('currentGroupDisplay').textContent = `当前评分小组：${currentGroup}`;
+                document.getElementById('displayGroupName').textContent = currentGroup;
+                
+                // 初始化该小组的数据（如果不存在）
+                if (!allScores[currentGroup]) {
+                    allScores[currentGroup] = [];
+                }
+                
+                // 更新结果显示
+                updateResultsDisplay();
+            }
+        }
+        
+        // 页面加载时检查URL参数
+        setTimeout(checkUrlParams, 100);
+    </script>
+</body>
+</html>
