@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <!-- 修复viewport配置，允许缩放 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, minimum-scale=0.5, user-scalable=yes">
+    <title>高斯投影：精密几何演示（弯曲增强版）</title>
+    <style>
+        /* ================= 通用重置 ================= */
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* 移除点击高亮 */
+        }
+        
+        html, body {
+            touch-action: manipulation; /* 改善触摸响应 */
+            overscroll-behavior: none; /* 防止过度滚动 */
+        }
+        
+        /* ================= 教学信息横幅 ================= */
+        #teaching-info {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(135deg, #001122 0%, #003366 100%);
+            color: white;
+            text-align: center;
+            padding: 8px 0;
+            z-index: 1000;
+            border-bottom: 2px solid #00aaff;
+            box-shadow: 0 4px 20px rgba(0, 100, 255, 0.3);
+            font-family: "微软雅黑", sans-serif;
+        }
+        
+        .info-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 0 5px;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 120px;
+            flex: 1;
+        }
+        
+        .info-label {
+            font-size: 10px;
+            color: #aaddff;
+            margin-bottom: 2px;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        
+        .info-content {
+            font-size: 12px;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 0 0 8px rgba(0, 200, 255, 0.7);
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+        
+        .competition {
+            color: #ffcc00 !important;
+            font-size: 14px !important;
+        }
+        
+        /* ================= 主体样式 ================= */
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: #020205; 
+            font-family: "微软雅黑", sans-serif; 
+            padding-top: 60px;
+            height: 100vh;
+            width: 100vw;
+            position: fixed; /* 防止移动端滚动 */
+            top: 0;
+            left: 0;
+        }
+        
+        #canvas-container { 
+            width: 100vw; 
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            touch-action: none; /* 防止页面缩放冲突 */
+        }
+        
+        /* ================= UI控制面板 ================= */
+        #ui-layer {
+            position: fixed;
+            top: 70px; /* 在横幅下方 */
+            left: 10px;
+            right: 10px; /* 添加右侧间距 */
+            width: auto; /* 改为自动宽度 */
+            max-width: 480px;
+            margin: 0 auto; /* 居中 */
+            background: rgba(12, 22, 35, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 15px;
+            border-radius: 12px; /* 增加圆角便于触摸 */
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 120, 255, 0.2);
+            color: #fff;
+            pointer-events: auto; 
+            user-select: none;
+            z-index: 2;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* 改善移动端滚动 */
+        }
+        
+        h2 { 
+            margin: 0 0 12px 0; 
+            color: #00ffff; 
+            font-size: 1.3rem; 
+            border-bottom: 2px solid #0066ff; 
+            padding-bottom: 8px; 
+            letter-spacing: 0.5px;
+            text-align: center;
+        }
+        
+        .desc-box {
+            background: rgba(255, 255, 255, 0.05); 
+            padding: 12px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            min-height: 120px;
+            max-height: 150px;
+            overflow-y: auto;
+            border-left: 4px solid #ffaa00;
+            -webkit-overflow-scrolling: touch; /* 改善移动端滚动 */
+        }
+        
+        .desc-title { 
+            color: #ffaa00; 
+            font-weight: bold; 
+            display: block; 
+            margin-bottom: 8px; 
+            font-size: 1.1rem; 
+        }
+        
+        .desc-text { 
+            font-size: 0.9rem; 
+            color: #ddeeff; 
+            line-height: 1.5; 
+            text-align: justify; 
+        }
+        
+        .controls { 
+            display: flex; 
+            gap: 15px; /* 增加间距 */
+            margin-top: 10px;
+        }
+        
+        button {
+            background: linear-gradient(180deg, #0055aa, #003377); 
+            border: 1px solid #0077cc; 
+            color: white; 
+            padding: 15px 0; /* 增加垂直内边距 */
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 1rem; 
+            flex: 1; 
+            transition: all 0.2s;
+            min-height: 50px; /* 更大的触摸区域 */
+            touch-action: manipulation; /* 改善触摸响应 */
+            outline: none; /* 移除默认轮廓 */
+        }
+        
+        button:focus {
+            box-shadow: 0 0 0 3px rgba(0, 150, 255, 0.5); /* 添加焦点样式 */
+        }
+        
+        button:hover { 
+            background: #0088ff; 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 12px rgba(0,150,255,0.4); 
+        }
+        
+        button:active {
+            transform: scale(0.98); /* 点击反馈 */
+            background: #0066cc;
+        }
+        
+        button:disabled { 
+            background: #2a3a4a; 
+            color: #667788; 
+            border-color: #445566; 
+            cursor: not-allowed; 
+            transform: none; 
+            box-shadow: none;
+        }
+        
+        .step-dots { 
+            display: flex; 
+            gap: 5px; 
+            margin-bottom: 15px; 
+        }
+        
+        .dot { 
+            flex: 1; 
+            height: 6px; /* 增加高度便于查看 */
+            background: #334455; 
+            border-radius: 3px; 
+            transition: 0.3s; 
+        }
+        
+        .dot.active { 
+            background: #ffaa00; 
+            box-shadow: 0 0 8px #ffaa00; 
+        }
+        
+        .dot.done { 
+            background: #00ffff; 
+        }
+        
+        /* ================= 移动端优化 ================= */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 50px; /* 减少顶部间距 */
+            }
+            
+            #teaching-info {
+                padding: 6px 0;
+                position: fixed;
+                z-index: 1000;
+            }
+            
+            .info-container {
+                gap: 6px;
+                padding: 0 8px;
+            }
+            
+            .info-item {
+                min-width: 45%;
+                flex: 0 0 calc(50% - 12px); /* 两列布局 */
+                margin-bottom: 4px;
+            }
+            
+            .info-label {
+                font-size: 9px;
+                margin-bottom: 1px;
+            }
+            
+            .info-content {
+                font-size: 11px;
+                max-width: 100%;
+            }
+            
+            .competition {
+                font-size: 12px !important;
+            }
+            
+            /* UI面板移动端优化 */
+            #ui-layer {
+                top: 55px;
+                left: 10px;
+                right: 10px;
+                width: auto;
+                padding: 12px;
+                max-height: calc(100vh - 70px);
+                border-radius: 10px;
+            }
+            
+            h2 {
+                font-size: 1.2rem;
+                margin-bottom: 10px;
+            }
+            
+            .desc-box {
+                min-height: 100px;
+                max-height: 120px;
+                padding: 10px;
+                margin-bottom: 15px;
+            }
+            
+            .desc-title {
+                font-size: 1rem;
+                margin-bottom: 6px;
+            }
+            
+            .desc-text {
+                font-size: 0.85rem;
+                line-height: 1.4;
+            }
+            
+            .controls {
+                gap: 10px;
+                margin-top: 5px;
+            }
+            
+            button {
+                padding: 14px 0;
+                font-size: 0.95rem;
+                min-height: 48px;
+                border-radius: 6px;
+            }
+            
+            .step-dots {
+                margin-bottom: 12px;
+            }
+            
+            .dot {
+                height: 5px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding-top: 45px;
+            }
+            
+            #teaching-info {
+                padding: 5px 0;
+            }
+            
+            .info-item {
+                flex: 0 0 calc(50% - 8px);
+                margin-bottom: 3px;
+            }
+            
+            .info-label {
+                font-size: 8px;
+            }
+            
+            .info-content {
+                font-size: 10px;
+            }
+            
+            #ui-layer {
+                top: 50px;
+                padding: 10px;
+                max-height: calc(100vh - 65px);
+            }
+            
+            h2 {
+                font-size: 1.1rem;
+                margin-bottom: 8px;
+            }
+            
+            .desc-box {
+                min-height: 90px;
+                max-height: 110px;
+                padding: 8px;
+                margin-bottom: 12px;
+            }
+            
+            .desc-text {
+                font-size: 0.8rem;
+                line-height: 1.3;
+            }
+            
+            button {
+                padding: 12px 0;
+                font-size: 0.9rem;
+                min-height: 45px;
+            }
+        }
+        
+        @media (orientation: landscape) and (max-height: 600px) {
+            /* 横屏模式 - 重新布局 */
+            #teaching-info {
+                padding: 4px 0;
+            }
+            
+            .info-container {
+                flex-wrap: nowrap;
+                gap: 10px;
+            }
+            
+            .info-item {
+                flex: 1;
+                min-width: auto;
+                margin-bottom: 0;
+            }
+            
+            #ui-layer {
+                top: 40px;
+                left: 10px;
+                right: auto;
+                width: 300px;
+                max-height: calc(100vh - 50px);
+            }
+            
+            .desc-box {
+                max-height: 100px;
+                min-height: 80px;
+            }
+        }
+        
+        /* 触摸设备优化 */
+        @media (hover: none) and (pointer: coarse) {
+            button {
+                -webkit-tap-highlight-color: rgba(0, 150, 255, 0.3);
+            }
+            
+            button:active {
+                background: #0066cc;
+                transform: scale(0.95);
+                transition: transform 0.1s;
+            }
+            
+            /* 禁用悬停效果，避免点击延迟 */
+            button:hover {
+                transform: none;
+                background: linear-gradient(180deg, #0055aa, #003377);
+            }
+        }
+        
+        /* 高DPI设备优化 */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            button {
+                border-width: 0.5px;
+            }
+        }
+        
+        /* 暗色模式支持 */
+        @media (prefers-color-scheme: dark) {
+            .desc-box {
+                background: rgba(255, 255, 255, 0.08);
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+</head>
+<body>
+
+    <!-- ================= 教学信息横幅 ================= -->
+    <div id="teaching-info">
+        <div class="info-container">
+            <div class="info-item">
+                <div class="info-label">比赛名称</div>
+                <div class="info-content competition">第六届教师教学创新大赛-人工智能组</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">授课教师</div>
+                <div class="info-content">刘佳丽</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">课程名称</div>
+                <div class="info-content">测量与地图学</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">教学章节</div>
+                <div class="info-content">第二章第三节 高斯-克吕格投影</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="ui-layer">
+        <h2>高斯投影原理演示</h2>
+        <div class="step-dots">
+            <div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+        <div class="desc-box">
+            <span class="desc-title" id="stepTitle">1. 地球与经纬网</span>
+            <span class="desc-text" id="stepDesc">
+                展示完整的地球椭球体及其经纬网。<br>
+                准备开始投影演示。
+            </span>
+        </div>
+        <div class="controls">
+            <button id="prevBtn" onclick="prevStep()" disabled>上一步</button>
+            <button id="nextBtn" onclick="nextStep()">下一步</button>
+        </div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+<script>
+    // ================= 移动端检测 =================
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    console.log('设备检测:', {
+        isMobile: isMobile,
+        isTouchDevice: isTouchDevice,
+        userAgent: navigator.userAgent
+    });
+    
+    // ================= 核心参数 =================
+    const EARTH_RADIUS = 5;
+    const CYLINDER_RADIUS = 5.05;
+    const CYLINDER_HEIGHT = 18;
+
+    // ================= 场景初始化 =================
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x020205);
+    scene.fog = new THREE.FogExp2(0x020205, 0.01);
+
+    // 根据设备调整摄像机视野
+    const cameraFOV = isMobile ? 55 : 45; // 移动端增加视野
+    const camera = new THREE.PerspectiveCamera(cameraFOV, window.innerWidth / window.innerHeight, 0.1, 1000);
+    
+    // 根据设备调整摄像机初始位置
+    const initialCameraZ = isMobile ? 45 : 35; // 移动端摄像机更远
+    camera.position.set(0, 0, initialCameraZ);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = new THREE.WebGLRenderer({ 
+        antialias: true, 
+        alpha: true,
+        powerPreference: "high-performance"
+    });
+    
+    // 移动设备性能优化
+    if (isMobile) {
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // 降低移动端像素比
+    } else {
+        renderer.setPixelRatio(window.devicePixelRatio);
+    }
+    
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.domElement.style.position = 'fixed';
+    renderer.domElement.style.top = '0';
+    renderer.domElement.style.left = '0';
+    renderer.domElement.style.width = '100%';
+    renderer.domElement.style.height = '100%';
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+    // 移动端触摸控制优化
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.1;
+    
+    if (isMobile) {
+        controls.minDistance = 25; // 移动端最小距离增加
+        controls.maxDistance = 70;
+        controls.enablePan = true; // 允许平移
+        controls.panSpeed = 0.5; // 降低平移速度
+        controls.rotateSpeed = 0.5; // 降低旋转速度
+        controls.touches = {
+            ONE: THREE.TOUCH.ROTATE,
+            TWO: THREE.TOUCH.DOLLY_PAN
+        };
+    } else {
+        controls.minDistance = 15;
+        controls.maxDistance = 80;
+    }
+
+    // 添加光源
+    scene.add(new THREE.AmbientLight(0x666666));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    dirLight.position.set(20, 20, 30);
+    scene.add(dirLight);
+
+    // ================= 对象组 =================
+    const earthGroup = new THREE.Group(); 
+    scene.add(earthGroup);
+
+    const demoGroup = new THREE.Group(); 
+    scene.add(demoGroup);
+
+    // ================= 1. 地球基础模型 =================
+    // 移动端降低几何复杂度
+    const earthSegments = isMobile ? 32 : 64;
+    const coreMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(EARTH_RADIUS - 0.05, earthSegments, earthSegments),
+        new THREE.MeshPhongMaterial({ 
+            color: 0x003366,
+            shininess: 30,
+            specular: 0x222222
+        })
+    );
+    earthGroup.add(coreMesh);
+
+    // 创建经纬网
+    function createBaseGrid() {
+        const material = new THREE.LineBasicMaterial({ 
+            color: 0xffffff, 
+            transparent: true, 
+            opacity: 0.4 
+        });
+        const points = [];
+        
+        // 降低移动设备网格密度以提高性能
+        const lonSegments = isMobile ? 12 : 24;
+        const latSegments = isMobile ? 8 : 18;
+        const pointsPerCircle = isMobile ? 32 : 64;
+        
+        // 经线
+        for(let i = 0; i < lonSegments; i++) {
+            const lon = (i / lonSegments) * Math.PI * 2;
+            for(let j = 0; j < pointsPerCircle; j++) {
+                const lat1 = (j / pointsPerCircle) * Math.PI - Math.PI / 2;
+                const lat2 = ((j + 1) / pointsPerCircle) * Math.PI - Math.PI / 2;
+                points.push(
+                    new THREE.Vector3(
+                        EARTH_RADIUS * Math.cos(lat1) * Math.cos(lon),
+                        EARTH_RADIUS * Math.sin(lat1),
+                        EARTH_RADIUS * Math.cos(lat1) * Math.sin(lon)
+                    ),
+                    new THREE.Vector3(
+                        EARTH_RADIUS * Math.cos(lat2) * Math.cos(lon),
+                        EARTH_RADIUS * Math.sin(lat2),
+                        EARTH_RADIUS * Math.cos(lat2) * Math.sin(lon)
+                    )
+                );
+            }
+        }
+        
+        // 纬线
+        for(let i = 1; i < latSegments; i++) {
+            const lat = (i / latSegments) * Math.PI - Math.PI / 2;
+            const r = EARTH_RADIUS * Math.cos(lat);
+            const y = EARTH_RADIUS * Math.sin(lat);
+            for(let j = 0; j < pointsPerCircle; j++) {
+                const t1 = (j / pointsPerCircle) * Math.PI * 2;
+                const t2 = ((j + 1) / pointsPerCircle) * Math.PI * 2;
+                points.push(
+                    new THREE.Vector3(r * Math.cos(t1), y, r * Math.sin(t1)),
+                    new THREE.Vector3(r * Math.cos(t2), y, r * Math.sin(t2))
+                );
+            }
+        }
+        
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        return new THREE.LineSegments(geometry, material);
+    }
+    
+    const globalGrid = createBaseGrid();
+    earthGroup.add(globalGrid);
+
+    // ================= 2. 演示组件 =================
+    const cylinderSegments = isMobile ? 32 : 64;
+    const cylGeo = new THREE.CylinderGeometry(
+        CYLINDER_RADIUS, 
+        CYLINDER_RADIUS, 
+        CYLINDER_HEIGHT, 
+        cylinderSegments, 
+        1, 
+        true
+    );
+    
+    const cylMat = new THREE.MeshPhongMaterial({ 
+        color: 0xddeeff, 
+        transparent: true, 
+        opacity: 0.6, 
+        side: THREE.DoubleSide, 
+        shininess: 80, 
+        depthWrite: false 
+    });
+    
+    const cylinder = new THREE.Mesh(cylGeo, cylMat);
+    cylinder.rotation.z = Math.PI / 2; 
+    cylinder.position.x = 35; 
+    cylinder.visible = false;
+    demoGroup.add(cylinder);
+
+    // 中央子午线圆环
+    const cmRingPts = [];
+    const ringPoints = isMobile ? 48 : 128;
+    
+    for(let i = 0; i <= ringPoints; i++) {
+        const t = (i / ringPoints) * Math.PI * 2;
+        cmRingPts.push(new THREE.Vector3(
+            0, 
+            (EARTH_RADIUS + 0.1) * Math.sin(t), 
+            (EARTH_RADIUS + 0.1) * Math.cos(t)
+        ));
+    }
+    
+    const cmRing = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(cmRingPts), 
+        new THREE.LineBasicMaterial({ 
+            color: 0xff0000, 
+            linewidth: 3,
+            transparent: true,
+            opacity: 0.8
+        })
+    );
+    cmRing.visible = false;
+    demoGroup.add(cmRing);
+
+    // 剪刀
+    function getScissorsTex() {
+        const c = document.createElement('canvas'); 
+        c.width = 128; 
+        c.height = 128;
+        const ctx = c.getContext('2d'); 
+        ctx.font = "90px Arial"; 
+        ctx.textAlign = "center"; 
+        ctx.textBaseline = "middle"; 
+        ctx.fillStyle = "#ff0000"; 
+        ctx.fillText("✂️", 64, 64);
+        return new THREE.CanvasTexture(c);
+    }
+    
+    const scissors = new THREE.Sprite(new THREE.SpriteMaterial({ 
+        map: getScissorsTex(),
+        transparent: true
+    }));
+    scissors.scale.set(2.5, 2.5, 1); 
+    scissors.visible = false;
+    demoGroup.add(scissors);
+
+    // ================= 3. 高斯投影核心算法 =================
+    
+    // 计算高斯投影坐标
+    function gaussProjection(lat, dLon) {
+        const R = EARTH_RADIUS;
+        const lam = dLon;
+        const phi = lat;
+        
+        const cosP = Math.cos(phi);
+        const sinP = Math.sin(phi);
+        const tanP = Math.tan(phi);
+
+        // 变形增强系数
+        const VISUAL_EXAGGERATION = 20.0; 
+
+        // 1. 计算 Northing (Y轴)
+        const termN1 = phi;
+        const termN2 = (Math.pow(lam, 2) / 2.0) * sinP * cosP * VISUAL_EXAGGERATION;
+        const northing = R * (termN1 + termN2);
+
+        // 2. 计算 Easting (X轴)
+        const termE1 = lam * cosP;
+        const termE2 = (Math.pow(lam, 3) / 6.0) * Math.pow(cosP, 3) * (1 - tanP * tanP) * (VISUAL_EXAGGERATION * 0.5);
+        const easting = R * (termE1 + termE2);
+
+        return { x: easting, y: northing };
+    }
+
+    const singleZone = { meridians: null, parallels: null };
+    const morphParams = { mFactor: 0, pFactor: 0, flatFactor: 0 }; 
+
+    function initSingleZone() {
+        // 根据设备调整网格密度
+        const segmentsH = isMobile ? 40 : 100;
+        const segmentsW = isMobile ? 20 : 40;
+
+        function createLineData(isMeridian) {
+            const sPos = []; // Sphere
+            const cPos = []; // Cylinder
+            const fPos = []; // Flat
+
+            const numLines = isMeridian ? 9 : 19;
+
+            for(let l = 0; l < numLines; l++) {
+                let u_line = l / (numLines - 1);
+                const ptCount = isMeridian ? segmentsH : segmentsW;
+
+                for(let k = 0; k < ptCount; k++) {
+                    let t = k / (ptCount - 1);
+                    let lat, dLonRad;
+                    
+                    if(isMeridian) {
+                        let relIdx = (u_line - 0.5) * 2; 
+                        dLonRad = relIdx * THREE.Math.degToRad(12);
+                        lat = (t - 0.5) * Math.PI * 0.94; 
+                    } else {
+                        let relIdx = (u_line - 0.5) * 2; 
+                        lat = relIdx * (Math.PI / 2.1); 
+                        dLonRad = (t - 0.5) * THREE.Math.degToRad(24);
+                    }
+
+                    // 1. Sphere State
+                    let lx = EARTH_RADIUS * Math.cos(lat) * Math.sin(dLonRad);
+                    let ly = EARTH_RADIUS * Math.sin(lat);
+                    let lz = EARTH_RADIUS * Math.cos(lat) * Math.cos(dLonRad);
+                    sPos.push(lx, ly, lz);
+
+                    // 2. Flat State (Exaggerated Gauss)
+                    const proj = gaussProjection(lat, dLonRad);
+                    let fx = proj.x;
+                    let fy = proj.y;
+                    fPos.push(fx, fy, 0);
+
+                    // 3. Cylinder State (Wrapped)
+                    let theta = fy / CYLINDER_RADIUS;
+                    let cx = fx;
+                    let cy = CYLINDER_RADIUS * Math.sin(theta);
+                    let cz = CYLINDER_RADIUS * Math.cos(theta);
+                    cPos.push(cx, cy, cz);
+                }
+            }
+            return { s: sPos, c: cPos, f: fPos };
+        }
+
+        function buildMesh(data, color) {
+            const geo = new THREE.BufferGeometry();
+            geo.setAttribute('position', new THREE.Float32BufferAttribute(data.s, 3)); 
+            geo.userData = data; 
+            const idx = [];
+            const isM = (color === 0x00ffff);
+            const numLines = isM ? 9 : 19;
+            const pts = isM ? segmentsH : segmentsW;
+            
+            for(let l = 0; l < numLines; l++) {
+                for(let k = 0; k < pts - 1; k++) {
+                    const b = l * pts + k;
+                    idx.push(b, b + 1);
+                }
+            }
+            
+            geo.setIndex(idx);
+            const mat = new THREE.LineBasicMaterial({ 
+                color: color, 
+                transparent: true, 
+                opacity: 0,
+                linewidth: 1
+            });
+            return new THREE.LineSegments(geo, mat);
+        }
+
+        singleZone.meridians = buildMesh(createLineData(true), 0x00ffff); 
+        singleZone.parallels = buildMesh(createLineData(false), 0xffcc00); 
+        
+        demoGroup.add(singleZone.meridians);
+        demoGroup.add(singleZone.parallels);
+    }
+
+    initSingleZone();
+
+    // 更新变形
+    function updateMorph() {
+        const mF = morphParams.mFactor; 
+        const pF = morphParams.pFactor; 
+        const fF = morphParams.flatFactor; 
+
+        // Update Meridians
+        const mGeo = singleZone.meridians.geometry;
+        const mU = mGeo.userData;
+        const mPos = mGeo.attributes.position.array;
+        for(let i = 0; i < mPos.length; i++) {
+            let sc = mU.s[i] * (1 - mF) + mU.c[i] * mF;
+            mPos[i] = sc * (1 - fF) + mU.f[i] * fF;
+        }
+        mGeo.attributes.position.needsUpdate = true;
+
+        // Update Parallels
+        const pGeo = singleZone.parallels.geometry;
+        const pU = pGeo.userData;
+        const pPos = pGeo.attributes.position.array;
+        for(let i = 0; i < pPos.length; i++) {
+            let sc = pU.s[i] * (1 - pF) + pU.c[i] * pF;
+            pPos[i] = sc * (1 - fF) + pU.f[i] * fF;
+        }
+        pGeo.attributes.position.needsUpdate = true;
+    }
+
+    // ================= 步骤控制 =================
+    
+    let currentStep = 1;
+    const steps = [
+        {},
+        { t: "1. 地球与经纬网", d: "展示地球椭球体及其经纬网。" },
+        { t: "2. 圆柱包裹", d: "圆柱体横向包裹地球，相切于中央子午线（此处为正面红线处）。<br>注：高斯投影是<strong>横轴</strong>切圆柱投影。" },
+        { t: "3. 切线显示", d: "加粗显示中央子午线（红色）。这是投影中唯一不变形的线。" },
+        { t: "4. 投影过程", d: "<strong>几何特征演示（视觉增强）：</strong><br>1. <strong>中央经线</strong>（直线）长度不变。<br>2. <strong>纬线</strong>（黄）投影后大幅弯曲，均<strong>凹向两极</strong>（北半球上翘，南半球下弯）。<br>3. 这种弯曲保证了投影的正形性质（经纬线垂直）。" },
+        { t: "5. 剪开圆柱", d: "沿两极切线剪开圆柱并去除地球模型。" },
+        { t: "6. 曲面展平", d: "圆柱面展开为平面。<br>可以清晰看到高斯投影带边缘的变形：纬线弯曲，经线向两极收敛。" }
+    ];
+
+    function updateUI() {
+        const dots = document.querySelectorAll('.dot');
+        dots.forEach((d, i) => {
+            d.className = 'dot';
+            if(i < currentStep - 1) d.classList.add('done');
+            if(i === currentStep - 1) d.classList.add('active');
+        });
+        document.getElementById('stepTitle').innerText = steps[currentStep].t;
+        document.getElementById('stepDesc').innerHTML = steps[currentStep].d;
+        
+        document.getElementById('prevBtn').disabled = (currentStep === 1);
+        const nextBtn = document.getElementById('nextBtn');
+        if(currentStep === 6) { 
+            nextBtn.disabled = true; 
+            nextBtn.innerText = "演示结束"; 
+        } else { 
+            nextBtn.disabled = false; 
+            nextBtn.innerText = "下一步"; 
+        }
+    }
+
+    function nextStep() {
+        if(currentStep < 6) {
+            currentStep++;
+            setStepState(currentStep);
+            updateUI();
+        }
+    }
+
+    function prevStep() {
+        if(currentStep > 1) {
+            currentStep--;
+            setStepState(currentStep);
+            updateUI();
+        }
+    }
+
+    function setStepState(step) {
+        TWEEN.removeAll();
+
+        switch(step) {
+            case 1:
+                cylinder.visible = false; 
+                cylinder.position.x = 35; 
+                cylinder.material.opacity = 0.5;
+                cmRing.visible = false;
+                earthGroup.visible = true; 
+                earthGroup.scale.set(1, 1, 1);
+                scissors.visible = false;
+                
+                singleZone.meridians.material.opacity = 0;
+                singleZone.parallels.material.opacity = 0;
+                morphParams.mFactor = 0; 
+                morphParams.pFactor = 0; 
+                morphParams.flatFactor = 0;
+                updateMorph();
+                
+                // 移动端摄像机位置调整
+                const targetZ = isMobile ? 45 : 35;
+                new TWEEN.Tween(camera.position)
+                    .to({ x: 0, y: 0, z: targetZ }, 1000)
+                    .start();
+                break;
+
+            case 2:
+                cylinder.visible = true;
+                cmRing.visible = false;
+                earthGroup.visible = true; 
+                earthGroup.scale.set(1, 1, 1);
+                scissors.visible = false;
+                new TWEEN.Tween(cylinder.position)
+                    .to({ x: 0 }, 1000)
+                    .easing(TWEEN.Easing.Cubic.Out)
+                    .start();
+                break;
+
+            case 3:
+                cylinder.visible = true; 
+                cylinder.position.x = 0;
+                cmRing.visible = true;
+                earthGroup.visible = true;
+                scissors.visible = false;
+                morphParams.mFactor = 0; 
+                morphParams.pFactor = 0; 
+                morphParams.flatFactor = 0;
+                updateMorph();
+                singleZone.meridians.material.opacity = 0;
+                singleZone.parallels.material.opacity = 0;
+                new TWEEN.Tween(cmRing.material)
+                    .to({ opacity: 0.2 }, 300)
+                    .yoyo(true)
+                    .repeat(5)
+                    .start();
+                break;
+
+            case 4:
+                cylinder.visible = true; 
+                cylinder.position.x = 0;
+                cmRing.visible = true; 
+                earthGroup.visible = true;
+                scissors.visible = false;
+                
+                new TWEEN.Tween(singleZone.meridians.material)
+                    .to({ opacity: 1 }, 800)
+                    .start();
+                    
+                new TWEEN.Tween(morphParams)
+                    .to({ mFactor: 1 }, 2000)
+                    .delay(200)
+                    .easing(TWEEN.Easing.Cubic.InOut)
+                    .onUpdate(updateMorph)
+                    .start();
+
+                setTimeout(() => {
+                    new TWEEN.Tween(singleZone.parallels.material)
+                        .to({ opacity: 1 }, 800)
+                        .start();
+                        
+                    new TWEEN.Tween(morphParams)
+                        .to({ pFactor: 1 }, 2000)
+                        .easing(TWEEN.Easing.Cubic.InOut)
+                        .onUpdate(updateMorph)
+                        .start();
+                }, 1500);
+                
+                new TWEEN.Tween(morphParams)
+                    .to({ flatFactor: 0 }, 100)
+                    .onUpdate(updateMorph)
+                    .start();
+                break;
+
+            case 5:
+                cylinder.visible = true; 
+                cylinder.position.x = 0; 
+                cylinder.material.opacity = 0.5;
+                cmRing.visible = false;
+                scissors.visible = true;
+                
+                morphParams.mFactor = 1; 
+                morphParams.pFactor = 1; 
+                morphParams.flatFactor = 0;
+                singleZone.meridians.material.opacity = 1;
+                singleZone.parallels.material.opacity = 1;
+                updateMorph();
+
+                scissors.position.set(CYLINDER_HEIGHT / 2, CYLINDER_RADIUS + 1.5, 0);
+                new TWEEN.Tween(scissors.position)
+                    .to({ x: -CYLINDER_HEIGHT / 2 }, 2000)
+                    .onUpdate(() => {
+                        scissors.material.rotation = Math.sin(Date.now() / 50) * 0.5;
+                    })
+                    .onComplete(() => {
+                        scissors.visible = false;
+                        new TWEEN.Tween(earthGroup.scale)
+                            .to({ x: 0.001, y: 0.001, z: 0.001 }, 500)
+                            .start();
+                    }).start();
+                break;
+
+            case 6:
+                earthGroup.scale.set(0.001, 0.001, 0.001);
+                scissors.visible = false;
+                cmRing.visible = false;
+                
+                new TWEEN.Tween(cylinder.material)
+                    .to({ opacity: 0 }, 1000)
+                    .start();
+
+                new TWEEN.Tween(morphParams)
+                    .to({ flatFactor: 1 }, 2000)
+                    .easing(TWEEN.Easing.Bounce.Out)
+                    .onUpdate(updateMorph)
+                    .start();
+                break;
+        }
+    }
+
+    // ================= 动画循环 =================
+    function animate() {
+        requestAnimationFrame(animate);
+        TWEEN.update();
+        controls.update();
+        renderer.render(scene, camera);
+    }
+    
+    // ================= 响应式调整 =================
+    let resizeTimeout;
+    function handleResize() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+            const isMobileNow = window.innerWidth < 768 || isMobile;
+            
+            // 更新摄像机参数
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.fov = isMobileNow ? 55 : 45;
+            camera.updateProjectionMatrix();
+            
+            // 更新渲染器大小
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            
+            // 更新OrbitControls参数
+            if (isMobileNow) {
+                controls.minDistance = 25;
+                controls.maxDistance = 70;
+                controls.enablePan = true;
+                controls.panSpeed = 0.5;
+                controls.rotateSpeed = 0.5;
+            } else {
+                controls.minDistance = 15;
+                controls.maxDistance = 80;
+                controls.enablePan = true;
+                controls.panSpeed = 1;
+                controls.rotateSpeed = 1;
+            }
+            
+            // 调整UI面板位置和大小
+            const uiLayer = document.getElementById('ui-layer');
+            if (window.innerWidth <= 768) {
+                uiLayer.style.left = '10px';
+                uiLayer.style.right = '10px';
+                uiLayer.style.width = 'auto';
+                uiLayer.style.maxWidth = 'none';
+            } else {
+                uiLayer.style.left = '10px';
+                uiLayer.style.right = 'auto';
+                uiLayer.style.width = '480px';
+                uiLayer.style.maxWidth = '480px';
+            }
+        }, 250); // 防抖处理
+    }
+    
+    // ================= 移动端触摸事件修复 =================
+    function initTouchEvents() {
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        // 添加触摸事件监听器
+        prevBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            prevStep();
+        }, { passive: false });
+        
+        nextBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            nextStep();
+        }, { passive: false });
+        
+        // 添加点击事件作为备用
+        prevBtn.addEventListener('click', prevStep);
+        nextBtn.addEventListener('click', nextStep);
+        
+        // 防止Three.js画布上的默认触摸行为
+        renderer.domElement.addEventListener('touchstart', function(e) {
+            if (e.target === renderer.domElement) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        renderer.domElement.addEventListener('touchmove', function(e) {
+            if (e.target === renderer.domElement) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        console.log('触摸事件初始化完成');
+    }
+    
+    // ================= 初始化 =================
+    function init() {
+        // 初始调整
+        handleResize();
+        
+        // 初始化触摸事件
+        if (isTouchDevice) {
+            initTouchEvents();
+        }
+        
+        // 启动动画
+        animate();
+        updateUI();
+        
+        // 确保地球在初始位置可见
+        camera.position.set(0, 0, isMobile ? 45 : 35);
+        camera.lookAt(0, 0, 0);
+        controls.update();
+        
+        console.log('初始化完成，设备类型:', isMobile ? '移动端' : '桌面端');
+    }
+    
+    // 窗口大小改变事件
+    window.addEventListener('resize', handleResize);
+    
+    // 页面加载完成后初始化
+    window.addEventListener('load', init);
+    
+    // 如果页面已经加载，直接初始化
+    if (document.readyState === 'complete') {
+        init();
+    }
+
+</script>
+</body>
+</html>
