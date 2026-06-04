@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>高斯投影：精密几何演示（弯曲增强版）</title>
+    <style>
+        /* ================= 新增：教学信息横幅 ================= */
+        #teaching-info {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(135deg, #001122 0%, #003366 100%);
+            color: white;
+            text-align: center;
+            padding: 12px 0;
+            z-index: 1000;
+            border-bottom: 2px solid #00aaff;
+            box-shadow: 0 4px 20px rgba(0, 100, 255, 0.3);
+            font-family: "微软雅黑", sans-serif;
+        }
+        .info-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .info-label {
+            font-size: 12px;
+            color: #aaddff;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+        .info-content {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 0 0 8px rgba(0, 200, 255, 0.7);
+        }
+        .competition {
+            color: #ffcc00 !important;
+            font-size: 18px !important;
+        }
+        
+        /* ================= 原有样式 ================= */
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: #020205; 
+            font-family: "微软雅黑", sans-serif; 
+            padding-top: 60px; /* 为教学信息横幅留出空间 */
+            box-sizing: border-box;
+        }
+        #canvas-container { 
+            width: 100vw; 
+            height: calc(100vh - 60px); /* 减去横幅高度 */
+            display: block; 
+            position: relative;
+        }
+        
+        #ui-layer {
+            position: absolute;
+            top: 80px; /* 调整位置，避免与横幅重叠 */
+            left: 20px; 
+            width: 480px;
+            background: rgba(12, 22, 35, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            box-shadow: 0 0 50px rgba(0, 120, 255, 0.15);
+            color: #fff;
+            pointer-events: auto; 
+            user-select: none;
+            z-index: 999;
+        }
+        h2 { 
+            margin: 0 0 15px 0; 
+            color: #00ffff; 
+            font-size: 1.5rem; 
+            border-bottom: 2px solid #0066ff; 
+            padding-bottom: 8px; 
+            letter-spacing: 1px;
+        }
+        .desc-box {
+            background: rgba(255, 255, 255, 0.05); 
+            padding: 15px; 
+            border-radius: 6px; 
+            margin-bottom: 20px; 
+            min-height: 120px; 
+            border-left: 4px solid #ffaa00;
+        }
+        .desc-title { 
+            color: #ffaa00; 
+            font-weight: bold; 
+            display: block; 
+            margin-bottom: 8px; 
+            font-size: 1.1rem; 
+        }
+        .desc-text { 
+            font-size: 0.95rem; 
+            color: #ddeeff; 
+            line-height: 1.6; 
+            text-align: justify; 
+        }
+        .controls { 
+            display: flex; 
+            gap: 10px; 
+        }
+        button {
+            background: linear-gradient(180deg, #0055aa, #003377); 
+            border: 1px solid #0077cc; 
+            color: white; 
+            padding: 12px 0;
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 1rem; 
+            flex: 1; 
+            transition: all 0.2s;
+        }
+        button:hover { 
+            background: #0088ff; 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 12px rgba(0,150,255,0.4); 
+        }
+        button:disabled { 
+            background: #2a3a4a; 
+            color: #667788; 
+            border-color: #445566; 
+            cursor: not-allowed; 
+            transform: none; 
+            box-shadow: none;
+        }
+        .step-dots { 
+            display: flex; 
+            gap: 5px; 
+            margin-bottom: 15px; 
+        }
+        .dot { 
+            flex: 1; 
+            height: 4px; 
+            background: #334455; 
+            border-radius: 2px; 
+            transition: 0.3s; 
+        }
+        .dot.active { 
+            background: #ffaa00; 
+            box-shadow: 0 0 6px #ffaa00; 
+        }
+        .dot.done { 
+            background: #00ffff; 
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+</head>
+<body>
+
+    <!-- ================= 新增：教学信息横幅 ================= -->
+    <!-- <div id="teaching-info">
+        <div class="info-container">
+            <div class="info-item">
+                <div class="info-label">比赛名称</div>
+                <div class="info-content competition">第六届教师教学创新大赛-人工智能组</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">授课教师</div>
+                <div class="info-content">测量与地图学团队</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">课程名称</div>
+                <div class="info-content">测量与地图学</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">教学章节</div>
+                <div class="info-content">第二章第三节 高斯-克吕格投影</div>
+            </div>
+        </div>
+    </div> -->
+
+    <div id="ui-layer">
+        <h2>高斯投影原理演示</h2>
+        <div class="step-dots">
+            <div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+        <div class="desc-box">
+            <span class="desc-title" id="stepTitle">1. 地球与经纬网</span>
+            <span class="desc-text" id="stepDesc">
+                展示完整的地球椭球体及其经纬网。<br>
+                准备开始投影演示。
+            </span>
+        </div>
+        <div class="controls">
+            <button id="prevBtn" onclick="prevStep()" disabled>上一步</button>
+            <button id="nextBtn" onclick="nextStep()">下一步</button>
+        </div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+<script>
+    // ================= 核心参数 =================
+    const EARTH_RADIUS = 5;
+    const CYLINDER_RADIUS = 5.05;
+    const CYLINDER_HEIGHT = 18;
+
+    // ================= 场景初始化 =================
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x020205);
+    scene.fog = new THREE.FogExp2(0x020205, 0.01);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 0, 35);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.minDistance = 15;
+    controls.maxDistance = 80;
+
+    scene.add(new THREE.AmbientLight(0x666666));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    dirLight.position.set(20, 20, 30);
+    scene.add(dirLight);
+
+    // ================= 对象组 =================
+    const earthGroup = new THREE.Group(); 
+    scene.add(earthGroup);
+
+    const demoGroup = new THREE.Group(); 
+    scene.add(demoGroup);
+
+    // ================= 1. 地球基础模型 =================
+    const coreMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(EARTH_RADIUS - 0.05, 64, 64),
+        new THREE.MeshBasicMaterial({ color: 0x000510 })
+    );
+    earthGroup.add(coreMesh);
+
+    function createBaseGrid() {
+        const material = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 });
+        const points = [];
+        for(let i=0; i<24; i++) {
+            const lon = (i/24) * Math.PI * 2;
+            for(let j=0; j<64; j++) {
+                const lat1 = (j/64)*Math.PI - Math.PI/2;
+                const lat2 = ((j+1)/64)*Math.PI - Math.PI/2;
+                points.push(
+                    new THREE.Vector3(EARTH_RADIUS*Math.cos(lat1)*Math.cos(lon), EARTH_RADIUS*Math.sin(lat1), EARTH_RADIUS*Math.cos(lat1)*Math.sin(lon)),
+                    new THREE.Vector3(EARTH_RADIUS*Math.cos(lat2)*Math.cos(lon), EARTH_RADIUS*Math.sin(lat2), EARTH_RADIUS*Math.cos(lat2)*Math.sin(lon))
+                );
+            }
+        }
+        for(let i=1; i<18; i++) {
+            const lat = (i/18)*Math.PI - Math.PI/2;
+            const r = EARTH_RADIUS * Math.cos(lat);
+            const y = EARTH_RADIUS * Math.sin(lat);
+            for(let j=0; j<64; j++) {
+                const t1 = (j/64)*Math.PI*2;
+                const t2 = ((j+1)/64)*Math.PI*2;
+                points.push( new THREE.Vector3(r*Math.cos(t1), y, r*Math.sin(t1)), new THREE.Vector3(r*Math.cos(t2), y, r*Math.sin(t2)) );
+            }
+        }
+        return new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(points), material);
+    }
+    const globalGrid = createBaseGrid();
+    earthGroup.add(globalGrid);
+
+    // ================= 2. 演示组件 =================
+    const cylGeo = new THREE.CylinderGeometry(CYLINDER_RADIUS, CYLINDER_RADIUS, CYLINDER_HEIGHT, 64, 1, true);
+    const cylMat = new THREE.MeshPhongMaterial({ color: 0xddeeff, transparent: true, opacity: 0.5, side: THREE.DoubleSide, shininess: 80, depthWrite: false });
+    const cylinder = new THREE.Mesh(cylGeo, cylMat);
+    cylinder.rotation.z = Math.PI / 2; 
+    cylinder.position.x = 35; 
+    cylinder.visible = false;
+    demoGroup.add(cylinder);
+
+    // 切线圆环
+    const cmRingPts = [];
+    for(let i=0; i<=128; i++) {
+        const t = (i/128)*Math.PI*2;
+        cmRingPts.push(new THREE.Vector3(0, (EARTH_RADIUS+0.05)*Math.sin(t), (EARTH_RADIUS+0.05)*Math.cos(t)));
+    }
+    const cmRing = new THREE.Line(new THREE.BufferGeometry().setFromPoints(cmRingPts), new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 3 }));
+    cmRing.visible = false;
+    demoGroup.add(cmRing);
+
+    // 剪刀
+    function getScissorsTex() {
+        const c = document.createElement('canvas'); c.width=128; c.height=128;
+        const ctx=c.getContext('2d'); ctx.font="90px Arial"; ctx.textAlign="center"; ctx.textBaseline="middle"; 
+        ctx.fillStyle="#ff0000"; ctx.fillText("✂️",64,64);
+        return new THREE.CanvasTexture(c);
+    }
+    const scissors = new THREE.Sprite(new THREE.SpriteMaterial({map:getScissorsTex()}));
+    scissors.scale.set(3,3,1); scissors.visible=false;
+    demoGroup.add(scissors);
+
+    // ================= 3. 高斯投影核心算法 (弯曲增强版) =================
+    
+    // 计算高斯投影坐标
+    function gaussProjection(lat, dLon) {
+        const R = EARTH_RADIUS;
+        const lam = dLon;
+        const phi = lat;
+        
+        const cosP = Math.cos(phi);
+        const sinP = Math.sin(phi);
+        const tanP = Math.tan(phi);
+
+        // === 变形增强系数 ===
+        // 真实的高斯投影弯曲在6度带内肉眼几乎看不见。
+        // 为了演示原理，我们在计算高阶项时人为放大经差的影响。
+        const VISUAL_EXAGGERATION = 20.0; 
+
+        // 1. 计算 Northing (Y轴)
+        // 数学公式: X = S + N/2 * lam^2 * sinB * cosB
+        // 如果 B>0 (北), sinB>0 -> X 增大 (向上弯)
+        // 如果 B<0 (南), sinB<0 -> X 减小 (向下弯)
+        const termN1 = phi; // 主项 (线性纬度)
+        // 关键变形项：
+        const termN2 = (Math.pow(lam, 2) / 2.0) * sinP * cosP * VISUAL_EXAGGERATION;
+        
+        const northing = R * (termN1 + termN2);
+
+        // 2. 计算 Easting (X轴)
+        // 数学公式: Y = N * lam * cosB + ...
+        const termE1 = lam * cosP;
+        // 稍微夸张一点经线收敛，让网格更好看，但不要太离谱以免交叉
+        const termE2 = (Math.pow(lam, 3) / 6.0) * Math.pow(cosP, 3) * (1 - tanP * tanP) * (VISUAL_EXAGGERATION * 0.5);
+        
+        const easting = R * (termE1 + termE2);
+
+        return { x: easting, y: northing };
+    }
+
+    const singleZone = { meridians: null, parallels: null };
+    const morphParams = { mFactor: 0, pFactor: 0, flatFactor: 0 }; 
+
+    function initSingleZone() {
+        const segmentsH = 100; // 极高精度以支持大弯曲
+        const segmentsW = 40; 
+
+        function createLineData(isMeridian) {
+            const sPos = []; // Sphere
+            const cPos = []; // Cylinder
+            const fPos = []; // Flat
+
+            const numLines = isMeridian ? 9 : 19; // 9条经线
+
+            for(let l=0; l<numLines; l++) {
+                let u_line = l/(numLines-1);
+                const ptCount = isMeridian ? segmentsH : segmentsW;
+
+                for(let k=0; k<ptCount; k++) {
+                    let t = k/(ptCount-1);
+                    let lat, dLonRad;
+                    
+                    // 演示用的数据范围
+                    if(isMeridian) {
+                        let relIdx = (u_line-0.5)*2; 
+                        dLonRad = relIdx * THREE.Math.degToRad(12); // +/- 12度范围
+                        lat = (t-0.5)*Math.PI * 0.94; 
+                    } else {
+                        let relIdx = (u_line-0.5)*2; 
+                        lat = relIdx * (Math.PI/2.1); 
+                        dLonRad = (t-0.5)*THREE.Math.degToRad(24); // 纬线画宽一点
+                    }
+
+                    // 1. Sphere State
+                    let lx = EARTH_RADIUS * Math.cos(lat) * Math.sin(dLonRad);
+                    let ly = EARTH_RADIUS * Math.sin(lat);
+                    let lz = EARTH_RADIUS * Math.cos(lat) * Math.cos(dLonRad);
+                    sPos.push(lx, ly, lz);
+
+                    // 2. Flat State (Exaggerated Gauss)
+                    const proj = gaussProjection(lat, dLonRad);
+                    let fx = proj.x;
+                    let fy = proj.y;
+                    fPos.push(fx, fy, 0);
+
+                    // 3. Cylinder State (Wrapped)
+                    let theta = fy / CYLINDER_RADIUS;
+                    let cx = fx;
+                    let cy = CYLINDER_RADIUS * Math.sin(theta);
+                    let cz = CYLINDER_RADIUS * Math.cos(theta);
+                    cPos.push(cx, cy, cz);
+                }
+            }
+            return { s: sPos, c: cPos, f: fPos };
+        }
+
+        function buildMesh(data, color) {
+            const geo = new THREE.BufferGeometry();
+            geo.setAttribute('position', new THREE.Float32BufferAttribute(data.s, 3)); 
+            geo.userData = data; 
+            const idx = [];
+            const isM = (color === 0x00ffff);
+            const numLines = isM ? 9 : 19;
+            const pts = isM ? segmentsH : segmentsW;
+            for(let l=0; l<numLines; l++) {
+                for(let k=0; k<pts-1; k++) {
+                    const b = l*pts + k;
+                    idx.push(b, b+1);
+                }
+            }
+            geo.setIndex(idx);
+            const mat = new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0 });
+            return new THREE.LineSegments(geo, mat);
+        }
+
+        singleZone.meridians = buildMesh(createLineData(true), 0x00ffff); 
+        singleZone.parallels = buildMesh(createLineData(false), 0xffcc00); 
+        
+        demoGroup.add(singleZone.meridians);
+        demoGroup.add(singleZone.parallels);
+    }
+
+    initSingleZone();
+
+    // 更新变形
+    function updateMorph() {
+        const mF = morphParams.mFactor; 
+        const pF = morphParams.pFactor; 
+        const fF = morphParams.flatFactor; 
+
+        // Update Meridians
+        const mGeo = singleZone.meridians.geometry;
+        const mU = mGeo.userData;
+        const mPos = mGeo.attributes.position.array;
+        for(let i=0; i<mPos.length; i++) {
+            let sc = mU.s[i]*(1-mF) + mU.c[i]*mF;
+            mPos[i] = sc*(1-fF) + mU.f[i]*fF;
+        }
+        mGeo.attributes.position.needsUpdate = true;
+
+        // Update Parallels
+        const pGeo = singleZone.parallels.geometry;
+        const pU = pGeo.userData;
+        const pPos = pGeo.attributes.position.array;
+        for(let i=0; i<pPos.length; i++) {
+            let sc = pU.s[i]*(1-pF) + pU.c[i]*pF;
+            pPos[i] = sc*(1-fF) + pU.f[i]*fF;
+        }
+        pGeo.attributes.position.needsUpdate = true;
+    }
+
+    // ================= 步骤控制 =================
+    
+    let currentStep = 1;
+    const steps = [
+        {},
+        { t: "1. 地球与经纬网", d: "展示地球椭球体及其经纬网。" },
+        { t: "2. 圆柱包裹", d: "圆柱体横向包裹地球，相切于中央子午线（此处为正面红线处）。<br>注：高斯投影是<strong>横轴</strong>切圆柱投影。" },
+        { t: "3. 切线显示", d: "加粗显示中央子午线（红色）。这是投影中唯一不变形的线。" },
+        { t: "4. 投影过程", d: "<strong>几何特征演示（视觉增强）：</strong><br>1. <strong>中央经线</strong>（直线）长度不变。<br>2. <strong>纬线</strong>（黄）投影后大幅弯曲，均<strong>凹向两极</strong>（北半球上翘，南半球下弯）。<br>3. 这种弯曲保证了投影的正形性质（经纬线垂直）。" },
+        { t: "5. 剪开圆柱", d: "沿两极切线剪开圆柱并去除地球模型。" },
+        { t: "6. 曲面展平", d: "圆柱面展开为平面。<br>可以清晰看到高斯投影带边缘的变形：纬线弯曲，经线向两极收敛。" }
+    ];
+
+    function updateUI() {
+        const dots = document.querySelectorAll('.dot');
+        dots.forEach((d,i)=>{
+            d.className = 'dot';
+            if(i<currentStep-1) d.classList.add('done');
+            if(i===currentStep-1) d.classList.add('active');
+        });
+        document.getElementById('stepTitle').innerText = steps[currentStep].t;
+        document.getElementById('stepDesc').innerHTML = steps[currentStep].d;
+        
+        document.getElementById('prevBtn').disabled = (currentStep === 1);
+        const nextBtn = document.getElementById('nextBtn');
+        if(currentStep===6) { nextBtn.disabled=true; nextBtn.innerText="演示结束"; }
+        else { nextBtn.disabled=false; nextBtn.innerText="下一步"; }
+    }
+
+    function nextStep() {
+        if(currentStep < 6) {
+            currentStep++;
+            setStepState(currentStep);
+            updateUI();
+        }
+    }
+
+    function prevStep() {
+        if(currentStep > 1) {
+            currentStep--;
+            setStepState(currentStep);
+            updateUI();
+        }
+    }
+
+    function setStepState(step) {
+        TWEEN.removeAll();
+
+        switch(step) {
+            case 1:
+                cylinder.visible = false; cylinder.position.x = 35; cylinder.material.opacity = 0.5;
+                cmRing.visible = false;
+                earthGroup.visible = true; earthGroup.scale.set(1,1,1);
+                scissors.visible = false;
+                
+                singleZone.meridians.material.opacity = 0;
+                singleZone.parallels.material.opacity = 0;
+                morphParams.mFactor = 0; morphParams.pFactor = 0; morphParams.flatFactor = 0;
+                updateMorph();
+                
+                new TWEEN.Tween(camera.position).to({x:0, y:0, z:35}, 1000).start();
+                break;
+
+            case 2:
+                cylinder.visible = true;
+                cmRing.visible = false;
+                earthGroup.visible = true; earthGroup.scale.set(1,1,1);
+                scissors.visible = false;
+                new TWEEN.Tween(cylinder.position).to({ x: 0 }, 1000).easing(TWEEN.Easing.Cubic.Out).start();
+                break;
+
+            case 3:
+                cylinder.visible = true; cylinder.position.x = 0;
+                cmRing.visible = true;
+                earthGroup.visible = true;
+                scissors.visible = false;
+                morphParams.mFactor = 0; morphParams.pFactor = 0; morphParams.flatFactor = 0;
+                updateMorph();
+                singleZone.meridians.material.opacity = 0;
+                singleZone.parallels.material.opacity = 0;
+                new TWEEN.Tween(cmRing.material).to({ opacity: 0.2 }, 300).yoyo(true).repeat(5).start();
+                break;
+
+            case 4:
+                cylinder.visible = true; cylinder.position.x = 0;
+                cmRing.visible = true; 
+                earthGroup.visible = true;
+                scissors.visible = false;
+                
+                new TWEEN.Tween(singleZone.meridians.material).to({opacity:1}, 800).start();
+                new TWEEN.Tween(morphParams).to({ mFactor: 1 }, 2000).delay(200)
+                    .easing(TWEEN.Easing.Cubic.InOut)
+                    .onUpdate(updateMorph)
+                    .start();
+
+                setTimeout(() => {
+                    new TWEEN.Tween(singleZone.parallels.material).to({opacity:1}, 800).start();
+                    new TWEEN.Tween(morphParams).to({ pFactor: 1 }, 2000)
+                        .easing(TWEEN.Easing.Cubic.InOut)
+                        .onUpdate(updateMorph)
+                        .start();
+                }, 1500);
+                
+                new TWEEN.Tween(morphParams).to({ flatFactor: 0 }, 100).onUpdate(updateMorph).start();
+                break;
+
+            case 5:
+                cylinder.visible = true; cylinder.position.x = 0; cylinder.material.opacity = 0.5;
+                cmRing.visible = false;
+                scissors.visible = true;
+                
+                morphParams.mFactor = 1; morphParams.pFactor = 1; morphParams.flatFactor = 0;
+                singleZone.meridians.material.opacity = 1;
+                singleZone.parallels.material.opacity = 1;
+                updateMorph();
+
+                scissors.position.set(CYLINDER_HEIGHT/2, CYLINDER_RADIUS + 1.5, 0);
+                new TWEEN.Tween(scissors.position)
+                    .to({ x: -CYLINDER_HEIGHT/2 }, 2000)
+                    .onUpdate(() => scissors.material.rotation = Math.sin(Date.now()/50)*0.5)
+                    .onComplete(() => {
+                        scissors.visible = false;
+                        new TWEEN.Tween(earthGroup.scale).to({x:0.001, y:0.001, z:0.001}, 500).start();
+                    }).start();
+                break;
+
+            case 6:
+                earthGroup.scale.set(0.001,0.001,0.001);
+                scissors.visible = false;
+                cmRing.visible = false;
+                
+                new TWEEN.Tween(cylinder.material).to({opacity: 0}, 1000).start();
+
+                new TWEEN.Tween(morphParams).to({ flatFactor: 1 }, 2000)
+                    .easing(TWEEN.Easing.Bounce.Out)
+                    .onUpdate(updateMorph)
+                    .start();
+                break;
+        }
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        TWEEN.update();
+        controls.update();
+        renderer.render(scene, camera);
+    }
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth/window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+    animate();
+    updateUI();
+    
+// 监听 01-高斯投影定义的理解.html 内部的“下一步/上一步”按钮
+(function() {
+    // 等待页面加载完成
+    function initButtonListener() {
+        var nextBtn = document.getElementById('nextStep');
+        var prevBtn = document.getElementById('prevStep');
+        
+        function notifyParent() {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: 'gauss_step_button_click' }, '*');
+            }
+        }
+        
+        if (nextBtn) {
+            // 保留原有事件，额外添加通知
+            nextBtn.addEventListener('click', notifyParent);
+        }
+        if (prevBtn) {
+            prevBtn.addEventListener('click', notifyParent);
+        }
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initButtonListener);
+    } else {
+        initButtonListener();
+    }
+})();
+</script>
+</body>
+</html>
