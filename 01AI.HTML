@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>《测量与地图学》AI智能教学平台 v8.0</title>
-   <script src="https://static.cloudbase.net/cloudbase-js-sdk/2.21.0/cloudbase.full.js"></script>
+    <script src="https://static.cloudbase.net/cloudbase-js-sdk/2.21.0/cloudbase.full.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         html,body{height:100%;overflow:hidden}
@@ -37,7 +37,7 @@
         .lock-hint{font-size:.55rem;color:#e53e3e;display:none}
         .pre-container{display:flex;gap:10px;flex:1;min-height:0}
         .pre-left{flex:1.2;display:flex;flex-direction:column;background:#fff;border-radius:8px;border:1px solid #e1e8ed;overflow:hidden;min-height:0}
-        .pre-right{flex:1;display:flex;flex-direction:column;background:#fff;bord cloudbase.initer-radius:8px;border:1px solid #e1e8ed;overflow:hidden;min-height:0}
+        .pre-right{flex:1;display:flex;flex-direction:column;background:#fff;border-radius:8px;border:1px solid #e1e8ed;overflow:hidden;min-height:0}
         .pre-section-header{padding:6px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font-weight:700;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;font-size:.75rem;flex-shrink:0}
         .pre-section-body{flex:1;overflow-y:auto;padding:8px 12px;min-height:0}
         .question-card{background:#fafbfc;border-radius:6px;padding:8px 10px;margin-bottom:6px;border:2px solid #edf2f7;transition:all .3s}
@@ -809,76 +809,64 @@
     // CloudBase 全局初始化
     // ================================================================
     const CLOUDBASE_ENV_ID = 'survey-class-d0guh7zo78fc3c932';
-    const CLOUDBASE_ACCESS_KEY = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjdkZjY1OTdmLTkyZTktNGFjZi04N2FlLWZmMjYwNTVkMTQxMSJ9.eyJpc3MiOiJodHRwczovL3N1cnZleS1jbGFzcy1kMGd1aDd6bzc4ZmMzYzkzMi5hcC1zaGFuZ2hhaS50Y2ItYXBpLnRlbmNlbnRjbG91ZGFwaS5jb20iLCJzdWIiOiJhbm9uIiwiYXVkIjoic3VydmV5LWNsYXNzLWQwZ3VoN3pvNzhmYzNjOTMyIiwiZXhwIjo0MDkzMDQyODYxLCJpYXQiOjE3ODkzNTk2NjEsIm5vbmNlIjoidVlyWG9CVzZRaEMyWUYwQmdBSVRuQSIsImF0X2hhc2giOiJ1WXJYb0JXNlFoQzJZRjBCZ0FJVG5BIiwibmFtZSI6IkFub255bW91cyIsInNjb3BlIjoiYW5vbnltb3VzIiwicHJvamVjdF9pZCI6InN1cnZleS1jbGFzcy1kMGd1aDd6bzc4ZmMzYzkzMiIsIm1ldGEiOnsicGxhdGZvcm0iOiJQdWJsaXNoYWJsZUtleSJ9LCJyb2xlIjoiYW5vbiIsImlzX2Fub255bW91cyI6dHJ1ZSwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiYW5vbnltb3VzIiwicHJvdmlkZXJzIjpbImFub255bW91cyJdfSwidXNlcl9tZXRhZGF0YSI6eyJuYW1lIjoiQW5vbnltb3VzIn0sInVzZXJfdHlwZSI6IiIsImNsaWVudF90eXBlIjoiY2xpZW50X3VzZXIiLCJpc19zeXN0ZW1fYWRtaW4iOmZhbHNlfQ.DF-qzRpxjMG_m6c78g3IHf_-i1eaDUe5aFsZh2Cdy87Lxb090xFyf2_-MbvtgviEWTn_5-N9xHQPONOYQsy2DpFi6iWwR0HXCZOzPOXRObgObZ5FLP1wJXO9kolZWRIZ2QdPdTRZOQ-G8aAtzoi-fLLuD0Y-3phluXUw4LHkyR6onaKkFWZF2prZf_A2cef_YKJPSzj7Eca0S1HlWz5gxl7UTONAokJXRvx_-h5pGcZG1wuxQrbaIDAKfcQ2fgsa5orNMP_v73TanhTeUqKDuRovhEOs0OCGYr-OG0jGt3IN40-5pZwqOu7KAjSBrg8ziRFDC6YYLB0UT67EksyfUw ';
-    // 云函数地址（新版 CloudBase HTTP 访问格式）
- //const CLOUD_FUNCTION_URL = `https://survey-class-d0guh7zo78fc3c932-1316943990.ap-shanghai.app.tcloudbase.com/data-api`;
+    const CLOUDBASE_ACCESS_KEY = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjdkZjY1OTdmLTkyZTktNGFjZi04N2FlLWZmMjYwNTVkMTQxMSJ9.eyJpc3MiOiJodHRwczovL3N1cnZleS1jbGFzcy1kMGd1aDd6bzc4ZmMzYzkzMi5hcC1zaGFuZ2hhaS50Y2ItYXBpLnRlbmNlbnRjbG91ZGFwaS5jb20iLCJzdWIiOiJhbm9uIiwiYXVkIjoic3VydmV5LWNsYXNzLWQwZ3VoN3pvNzhmYzNjOTMyIiwiZXhwIjo0MDkzMDQyODYxLCJpYXQiOjE3ODkzNTk2NjEsIm5vbmNlIjoidVlyWG9CVzZRaEMyWUYwQmdBSVRuQSIsImF0X2hhc2giOiJ1WXJYb0JXNlFoQzJZRjBCZ0FJVG5BIiwibmFtZSI6IkFub255bW91cyIsInNjb3BlIjoiYW5vbnltb3VzIiwicHJvamVjdF9pZCI6InN1cnZleS1jbGFzcy1kMGd1aDd6bzc4ZmMzYzkzMiIsIm1ldGEiOnsicGxhdGZvcm0iOiJQdWJsaXNoYWJsZUtleSJ9LCJyb2xlIjoiYW5vbiIsImlzX2Fub255bW91cyI6dHJ1ZSwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiYW5vbnltb3VzIiwicHJvdmlkZXJzIjpbImFub255bW91cyJdfSwidXNlcl9tZXRhZGF0YSI6eyJuYW1lIjoiQW5vbnltb3VzIn0sInVzZXJfdHlwZSI6IiIsImNsaWVudF90eXBlIjoiY2xpZW50X3VzZXIiLCJpc19zeXN0ZW1fYWRtaW4iOmZhbHNlfQ.DF-qzRpxjMG_m6c78g3IHf_-i1eaDUe5aFsZh2Cdy87Lxb090xFyf2_-MbvtgviEWTn_5-N9xHQPONOYQsy2DpFi6iWwR0HXCZOzPOXRObgObZ5FLP1wJXO9kolZWRIZ2QdPdTRZOQ-G8aAtzoi-fLLuD0Y-3phluXUw4LHkyR6onaKkFWZF2prZf_A2cef_YKJPSzj7Eca0S1HlWz5gxl7UTONAokJXRvx_-h5pGcZG1wuxQrbaIDAKfcQ2fgsa5orNMP_v73TanhTeUqKDuRovhEOs0OCGYr-OG0jGt3IN40-5pZwqOu7KAjSBrg8ziRFDC6YYLB0UT67EksyfUw';
     let app = null;
     let auth = null;
 
     function initCloudBase() {
         if (app) return app;
-     app = cloudbase.init({
-    env: CLOUDBASE_ENV_ID,
-    accessKey: CLOUDBASE_ACCESS_KEY
-});
+        app = cloudbase.init({ env: CLOUDBASE_ENV_ID });
         auth = app.auth();
         return app;
     }
 
- async function ensureLogin() {
-    // 用 accessKey 鉴权，不需要匿名登录
-    return true;
-}
+    async function ensureLogin() { return true; }
 
     // ================================================================
-    // 云函数调用（统一入口）
+    // 云函数调用（HTTP API 直连数据库）
     // ================================================================
-   async function callCloudFunction(action, payload) {
-    await ensureLogin();
-    const db = app.database();
-    const collection = db.collection('submissions');
-    
-    if (action === 'save') {
-        const { studentId, studentName, module, data } = payload;
-        const existing = await collection.where({ studentId, module }).get();
-        if (existing.data && existing.data.length > 0) {
-            await collection.doc(existing.data[0]._id).update({
-                studentName, data, updatedAt: new Date()
+    async function callCloudFunction(action, payload) {
+        const API_URL = 'https://survey-class-d0guh7zo78fc3c932.api.tcloudbasegateway.com/v1/rdb/rest/submissions';
+        let method = 'GET';
+        let url = API_URL;
+        let body = null;
+        if (action === 'save') {
+            method = 'POST';
+            url = API_URL + '?on_conflict="studentId",module';
+            body = JSON.stringify({
+                studentId: payload.studentId,
+                studentName: payload.studentName,
+                module: payload.module,
+                data: payload.data
             });
-        } else {
-            await collection.add({
-                studentId, studentName, module, data,
-                createdAt: new Date(), updatedAt: new Date()
-            });
+        } else if (action === 'get') {
+            method = 'GET';
+            url = API_URL + '?studentId=eq.' + encodeURIComponent(payload.studentId) + '&module=eq.' + encodeURIComponent(payload.module);
+        } else if (action === 'list') {
+            method = 'GET';
+            url = API_URL + '?order=updatedAt.desc';
         }
+        const headers = {
+            'Content-Type': 'application/json',
+            'apikey': CLOUDBASE_ACCESS_KEY,
+            'Authorization': 'Bearer ' + CLOUDBASE_ACCESS_KEY,
+            'Prefer': 'resolution=merge-duplicates,return=representation'
+        };
+        const res = await fetch(url, { method: method, headers: headers, body: body });
+        if (!res.ok) { const errText = await res.text(); throw new Error('API请求失败 (' + res.status + '): ' + errText); }
+        const result = await res.json();
+        if (action === 'get') return { success: true, data: result && result.length > 0 ? result[0].data : null };
+        if (action === 'list') return { success: true, data: result || [] };
         return { success: true };
     }
-    
-    if (action === 'get') {
-        const { studentId, module } = payload;
-        const res = await collection.where({ studentId, module }).get();
-        return { success: true, data: res.data && res.data.length > 0 ? res.data[0].data : null };
-    }
-    
-    if (action === 'list') {
-        const res = await collection.get();
-        return { success: true, data: res.data || [] };
-    }
-    
-    return { success: false, message: '未知操作' };
-}
 
     // ================================================================
-    // AI 调用（CloudBase 内置模型）
+    // AI 调用
     // ================================================================
     async function callDeepSeek(messages, onChunk) {
-        // await ensureLogin();
         const ai = app.ai();
         const model = ai.createModel("cloudbase");
-        const res = await model.streamText({
-            model: "hy3",
-            messages: messages
-        });
+        const res = await model.streamText({ model: "hy3", messages: messages });
         let full = '';
         for await (const chunk of res.textStream) {
             full += chunk;
@@ -888,45 +876,30 @@
     }
 
     // ================================================================
-    // 数据保存 / 读取（走云函数）
+    // 数据保存 / 读取
     // ================================================================
     async function saveModuleData(studentId, moduleName, data) {
         localStorage.setItem(`module_${moduleName}_${studentId}`, JSON.stringify(data));
         try {
-            await callCloudFunction('save', {
-                studentId: studentId,
-                studentName: data.studentName || '未命名',
-                module: moduleName,
-                data: data
-            });
+            await callCloudFunction('save', { studentId: studentId, studentName: data.studentName || '未命名', module: moduleName, data: data });
             console.log(`✅ ${moduleName} 已同步到云端`);
-        } catch (e) {
-            console.error('云端同步失败：', e);
-        }
+        } catch (e) { console.error('云端同步失败：', e); }
     }
 
     async function getModuleData(studentId, moduleName) {
         const local = localStorage.getItem(`module_${moduleName}_${studentId}`);
-        if (local) {
-            syncFromCloud(studentId, moduleName);
-            return JSON.parse(local);
-        }
+        if (local) { syncFromCloud(studentId, moduleName); return JSON.parse(local); }
         return await syncFromCloud(studentId, moduleName);
     }
 
     async function syncFromCloud(studentId, moduleName) {
         try {
-            const result = await callCloudFunction('get', {
-                studentId: studentId,
-                module: moduleName
-            });
+            const result = await callCloudFunction('get', { studentId: studentId, module: moduleName });
             if (result && result.data) {
                 localStorage.setItem(`module_${moduleName}_${studentId}`, JSON.stringify(result.data));
                 return result.data;
             }
-        } catch (e) {
-            console.error('云端读取失败：', e);
-        }
+        } catch (e) { console.error('云端读取失败：', e); }
         return null;
     }
 
@@ -934,15 +907,11 @@
         try {
             const result = await callCloudFunction('list', {});
             const rows = result.data || [];
+            console.log('loadAllStudentsFromCloud 收到', rows.length, '条记录');
             const profiles = {};
             rows.forEach(r => {
                 if (!profiles[r.studentId]) {
-                    profiles[r.studentId] = {
-                        studentId: r.studentId,
-                        studentName: r.studentName,
-                        modules: {},
-                        lastUpdated: r.updatedAt
-                    };
+                    profiles[r.studentId] = { studentId: r.studentId, studentName: r.studentName, modules: {}, lastUpdated: r.updatedAt };
                 }
                 profiles[r.studentId].modules[r.module] = r.data;
                 localStorage.setItem(`module_${r.module}_${r.studentId}`, JSON.stringify(r.data));
@@ -950,10 +919,7 @@
             studentProfiles = profiles;
             localStorage.setItem('student_profiles', JSON.stringify(profiles));
             return profiles;
-        } catch (e) {
-            console.error('加载全班数据失败：', e);
-            return null;
-        }
+        } catch (e) { console.error('加载全班数据失败：', e); return null; }
     }
 
     // ================================================================
@@ -1022,13 +988,7 @@
         {id:"test15",type:"calc",text:"中心经度114°30'E，最合适的6°带中央子午线：______°",correct:"111",points:12,concept:'分带'}
     ];
 
-    const inclassCorrectAnswers = {
-        'iq1-1':'C','iq1-2':'B','iq1-3':'C',
-        'iq2-1':'B','iq2-2':'C','iq2-3':'B','iq2-4':'B',
-        'iq3-1':'B','iq3-2':'A','iq3-3':'C','iq3-4':'B',
-        'iq4-1':'B','iq4-2':'C','iq4-3':'C','iq4-4':'B'
-    };
-
+    const inclassCorrectAnswers = { 'iq1-1':'C','iq1-2':'B','iq1-3':'C','iq2-1':'B','iq2-2':'C','iq2-3':'B','iq2-4':'B','iq3-1':'B','iq3-2':'A','iq3-3':'C','iq3-4':'B','iq4-1':'B','iq4-2':'C','iq4-3':'C','iq4-4':'B' };
     const moduleQuestions = {0:['iq1-1','iq1-2','iq1-3'],1:['iq2-1','iq2-2','iq2-3','iq2-4'],2:['iq3-1','iq3-2','iq3-3','iq3-4'],3:['iq4-1','iq4-2','iq4-3','iq4-4']};
 
     // ================================================================
@@ -1574,11 +1534,11 @@
     // ================================================================
     // 学习评价
     // ================================================================
-    function calculateComprehensiveLevel(studentId) {
-        const preData = getModuleData(studentId, 'pre');
-        const inclassData = getModuleData(studentId, 'inclass');
-        const quizData = getModuleData(studentId, 'quiz');
-        const homeworkData = getModuleData(studentId, 'homework');
+    async function calculateComprehensiveLevel(studentId) {
+        const preData = await getModuleData(studentId, 'pre');
+        const inclassData = await getModuleData(studentId, 'inclass');
+        const quizData = await getModuleData(studentId, 'quiz');
+        const homeworkData = await getModuleData(studentId, 'homework');
         const hasPre = !!(preData && (preData.answers || preData.rate !== undefined));
         const hasInclass = !!(inclassData && inclassData.answers);
         const hasQuiz = !!(quizData && (quizData.answers || quizData.score !== undefined));
@@ -1632,7 +1592,7 @@
         const name = document.getElementById('evalStudentName').value.trim();
         if (!id) { alert('请填写学号！'); return; }
         if (name) saveStudentProfile(id, name);
-        const compData = calculateComprehensiveLevel(id);
+        const compData = await calculateComprehensiveLevel(id);
         const preData = await getModuleData(id, 'pre');
         const inclassData = await getModuleData(id, 'inclass');
         const quizData = await getModuleData(id, 'quiz');
@@ -1672,7 +1632,7 @@
         container.innerHTML = '<div class="eval-card" style="background:linear-gradient(135deg,#f8f7ff,#f0f4ff);border:1px solid #d6bcf7;"><h4>📊 综合学习画像 <span class="ai-badge">' + level + '</span></h4><div class="comprehensive-score" style="color:' + levelColor + ';">' + comprehensiveScore + '分</div><div class="score-formula">📐 六维加权：前测15% + 课中15% + 后测(随堂)25% + 作业15% + 投入度15% + 速度15%</div><div style="text-align:center;font-size:.7rem;color:#888;margin-top:4px;">' + name + ' · ' + id + '</div><div class="growth-indicator ' + growthClass + '">' + growthText + '</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:6px;font-size:.65rem;text-align:center;"><div style="background:#f8fafc;padding:4px;border-radius:4px;">⏱️ 总时长 ' + formatTime(compData.totalTime || 0) + '</div><div style="background:#f8fafc;padding:4px;border-radius:4px;">📖 阅读 ' + formatTime(compData.readingTime || 0) + '</div><div style="background:#f8fafc;padding:4px;border-radius:4px;">💻 操作 ' + formatTime(compData.operationTime || 0) + '</div></div></div><div class="eval-card"><h4>📈 六维能力画像 <span style="font-size:.6rem;color:#888;font-weight:400;">（含权重）</span></h4><div class="dimension-scores">' + dimHtml + '</div></div>' + homeworkDetail + '<div class="eval-card"><h4>🎯 知识点掌握程度</h4><div class="knowledge-grid">' + knowledgeHtml + '</div></div><div class="eval-card" id="aiSuggestionCard"><h4>🤖 AI 个性化学习建议 <span class="ai-badge">DeepSeek</span></h4><div id="aiSuggestionContent" style="font-size:.82rem;line-height:1.6;color:#888;">⏳ 正在生成 AI 建议...</div></div><div style="font-size:.6rem;color:#888;text-align:right;margin-top:4px;">数据更新时间：' + new Date().toLocaleString() + '</div>';
     }
 
-    async function generateAIEvaluation() { const id = document.getElementById('evalStudentId').value.trim(); const name = document.getElementById('evalStudentName').value.trim() || '学生'; if (!id) { alert('请填写学号！'); return; } const compData = calculateComprehensiveLevel(id); const preData = await getModuleData(id, 'pre'); const inclassData = await getModuleData(id, 'inclass'); const knowledge = calculateKnowledgeFromData(preData, inclassData); await generateAIEvaluationForStudent(name, id, compData, knowledge); }
+    async function generateAIEvaluation() { const id = document.getElementById('evalStudentId').value.trim(); const name = document.getElementById('evalStudentName').value.trim() || '学生'; if (!id) { alert('请填写学号！'); return; } const compData = await calculateComprehensiveLevel(id); const preData = await getModuleData(id, 'pre'); const inclassData = await getModuleData(id, 'inclass'); const knowledge = calculateKnowledgeFromData(preData, inclassData); await generateAIEvaluationForStudent(name, id, compData, knowledge); }
 
     async function generateAIEvaluationForStudent(name, id, compData, knowledge) {
         const container = document.getElementById('aiSuggestionContent');
@@ -1991,72 +1951,301 @@
     // ================================================================
     // 各题目正确率
     // ================================================================
-    function renderQuestionAnalysis(studentData) {
-        if (!studentData || studentData.length === 0) { ['preQuestionStats','inclassQuestionStats','quizQuestionStats'].forEach(id => { document.getElementById(id).innerHTML = '<p style="color:#888;font-size:.7rem;text-align:center;padding:8px;">暂无数据</p>'; }); ['preCountLabel','inclassCountLabel','quizCountLabel'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = '0人'; }); return; }
-        const escapeHtml = (s) => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-        function renderOptionDistribution(optionCounts, total) { if (!optionCounts || total === 0) return ''; const labels = ['A', 'B', 'C', 'D']; let html = '<div class="option-distribution">'; labels.forEach(label => { const count = optionCounts[label] || 0; const pct = total > 0 ? Math.round(count / total * 100) : 0; const color = label === 'A' ? '#4299e1' : label === 'B' ? '#48bb78' : label === 'C' ? '#ed8936' : '#9f7aea'; html += `<div class="opt-bar"><span class="opt-label">${label}</span><div class="bar-track"><div class="fill" style="width:${pct}%;background:${color};"></div></div><span class="opt-pct">${pct}%</span></div>`; }); html += '</div>'; return html; }
-        function buildAnswerRows(rows, optionCounts, total) { if (!rows.length) return '<p style="color:#888;font-size:.58rem;padding:4px;">暂无提交</p>'; let html = `<div style="margin-bottom:4px;font-size:.55rem;color:#888;">📊 选项分布统计（共${total}人作答）</div>` + renderOptionDistribution(optionCounts, total); html += '<table class="q-answer-table"><thead><tr><th>学号</th><th>姓名</th><th>作答</th><th>结果</th></tr></thead><tbody>'; rows.forEach(r => { const cls = r.status === 'ok' ? 'ok' : (r.status === 'bad' ? 'bad' : 'na'); const mark = r.status === 'ok' ? '✅' : (r.status === 'bad' ? '❌' : '—'); html += `<tr><td>${escapeHtml(r.id)}</td><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.answer)}</td><td class="${cls}">${mark}</td></tr>`; }); html += '</tbody></table>'; return html; }
-        function makeBlock(label, rate, color, correct, total, detailHtml) { return `<div class="q-stat-block"><div class="q-stat-item" onclick="toggleQuestionDetail(this)"><span class="q-label">${escapeHtml(label)}</span><div class="q-bar"><div class="fill" style="width:${rate}%;background:${color};"></div></div><span class="q-rate" style="color:${color};">${rate}%</span><span class="q-count">(${correct}/${total}) ▾</span></div><div class="q-expand">${detailHtml}</div></div>`; }
-        let preHtml = '';
-        preQuestions.forEach((q, idx) => {
-            let correct = 0;
-            const optionCounts = {A:0, B:0, C:0, D:0};
-            const preStudents = studentData.filter(s => getModuleData(s.studentId, 'pre'));
-            const fullRows = preStudents.map(s => { const pre = getModuleData(s.studentId, 'pre'); const ans = pre && pre.answers ? pre.answers[q.id] : ''; if (!ans) return { id: s.studentId, name: s.studentName, answer: '未作答', status: 'na' }; const ok = checkAnswer(q.id, ans); if (ok) correct++; if (q.type === 'choice' || q.type === 'judgment') { const label = ans.charAt(0); if (optionCounts.hasOwnProperty(label)) optionCounts[label]++; } return { id: s.studentId, name: s.studentName, answer: ans, status: ok ? 'ok' : 'bad' }; });
-            const total = fullRows.length;
-            const rate = total > 0 ? Math.round(correct / total * 100) : 0;
-            const color = rate >= 80 ? '#48bb78' : (rate >= 60 ? '#ed8936' : '#e53e3e');
-            preHtml += makeBlock('Q' + (idx+1), rate, color, correct, total, buildAnswerRows(fullRows, optionCounts, total));
-        });
-        document.getElementById('preQuestionStats').innerHTML = preHtml || '<p style="color:#888;font-size:.7rem;text-align:center;padding:8px;">暂无数据</p>';
-        document.getElementById('preCountLabel').textContent = studentData.filter(s => s.hasPre).length + '人';
-        let inHtml = '';
-        Object.keys(inclassCorrectAnswers).forEach((qid) => {
-            let correct = 0;
-            const optionCounts = {A:0, B:0, C:0, D:0};
-            const inStudents = studentData.filter(s => getModuleData(s.studentId, 'inclass'));
-            const fullRows = inStudents.map(s => { const inclass = getModuleData(s.studentId, 'inclass'); const ans = inclass && inclass.answers ? inclass.answers[qid] : ''; if (!ans) return { id: s.studentId, name: s.studentName, answer: '未作答', status: 'na' }; const ok = ans === inclassCorrectAnswers[qid]; if (ok) correct++; const label = ans.charAt(0); if (optionCounts.hasOwnProperty(label)) optionCounts[label]++; return { id: s.studentId, name: s.studentName, answer: ans, status: ok ? 'ok' : 'bad' }; });
-            const total = fullRows.length;
-            const rate = total > 0 ? Math.round(correct / total * 100) : 0;
-            const color = rate >= 80 ? '#48bb78' : (rate >= 60 ? '#ed8936' : '#e53e3e');
-            inHtml += makeBlock(qid.replace('iq', 'Q'), rate, color, correct, total, buildAnswerRows(fullRows, optionCounts, total));
-        });
-        document.getElementById('inclassQuestionStats').innerHTML = inHtml || '<p style="color:#888;font-size:.7rem;text-align:center;padding:8px;">暂无数据</p>';
-        document.getElementById('inclassCountLabel').textContent = studentData.filter(s => s.hasInclass).length + '人';
-        let quizHtml = '';
-        quizTestQuestions.forEach((q, idx) => {
-            let correct = 0;
-            const optionCounts = {A:0, B:0, C:0, D:0};
-            const quizStudents = studentData.filter(s => getModuleData(s.studentId, 'quiz'));
-            const fullRows = quizStudents.map(s => { const quiz = getModuleData(s.studentId, 'quiz'); const ans = quiz && quiz.answers ? quiz.answers[q.id] : ''; if (!ans) return { id: s.studentId, name: s.studentName, answer: '未作答', status: 'na' }; const norm = ans.toString().toLowerCase().replace(/\s/g, ''); const correctAns = q.correct.toString().toLowerCase().replace(/\s/g, ''); const ok = norm === correctAns; if (ok) correct++; if (q.type === 'choice') { const label = ans.charAt(0); if (optionCounts.hasOwnProperty(label)) optionCounts[label]++; } return { id: s.studentId, name: s.studentName, answer: ans, status: ok ? 'ok' : 'bad' }; });
-            const total = fullRows.length;
-            const rate = total > 0 ? Math.round(correct / total * 100) : 0;
-            const color = rate >= 80 ? '#48bb78' : (rate >= 60 ? '#ed8936' : '#e53e3e');
-            quizHtml += makeBlock('T' + (idx+1), rate, color, correct, total, buildAnswerRows(fullRows, optionCounts, total));
-        });
-        document.getElementById('quizQuestionStats').innerHTML = quizHtml || '<p style="color:#888;font-size:.7rem;text-align:center;padding:8px;">暂无数据</p>';
-        document.getElementById('quizCountLabel').textContent = studentData.filter(s => s.hasQuiz).length + '人';
+    
+         function renderQuestionAnalysis(studentData) {
+    if (!studentData || studentData.length === 0) { ['preQuestionStats','inclassQuestionStats','quizQuestionStats'].forEach(id => { document.getElementById(id).innerHTML = '<p style="color:#888;font-size:.7rem;text-align:center;padding:8px;">暂无数据</p>'; }); ['preCountLabel','inclassCountLabel','quizCountLabel'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = '0人'; }); return; }
+    const escapeHtml = (s) => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    
+    // 关键：同步从 localStorage 读，避免 async 问题
+    function getLocalModuleData(studentId, moduleName) {
+        try {
+            const raw = localStorage.getItem(`module_${moduleName}_${studentId}`);
+            return raw ? JSON.parse(raw) : null;
+        } catch(e) { return null; }
     }
+    
+    function renderOptionDistribution(optionCounts, total) { if (!optionCounts || total === 0) return ''; const labels = ['A', 'B', 'C', 'D']; let html = '<div class="option-distribution">'; labels.forEach(label => { const count = optionCounts[label] || 0; const pct = total > 0 ? Math.round(count / total * 100) : 0; const color = label === 'A' ? '#4299e1' : label === 'B' ? '#48bb78' : label === 'C' ? '#ed8936' : '#9f7aea'; html += `<div class="opt-bar"><span class="opt-label">${label}</span><div class="bar-track"><div class="fill" style="width:${pct}%;background:${color};"></div></div><span class="opt-pct">${pct}%</span></div>`; }); html += '</div>'; return html; }
+    function buildAnswerRows(rows, optionCounts, total) { if (!rows.length) return '<p style="color:#888;font-size:.58rem;padding:4px;">暂无提交</p>'; let html = `<div style="margin-bottom:4px;font-size:.55rem;color:#888;">📊 选项分布统计（共${total}人作答）</div>` + renderOptionDistribution(optionCounts, total); html += '<table class="q-answer-table"><thead><tr><th>学号</th><th>姓名</th><th>作答</th><th>结果</th></tr></thead><tbody>'; rows.forEach(r => { const cls = r.status === 'ok' ? 'ok' : (r.status === 'bad' ? 'bad' : 'na'); const mark = r.status === 'ok' ? '✅' : (r.status === 'bad' ? '❌' : '—'); html += `<tr><td>${escapeHtml(r.id)}</td><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.answer)}</td><td class="${cls}">${mark}</td></tr>`; }); html += '</tbody></table>'; return html; }
+    function makeBlock(label, rate, color, correct, total, detailHtml) { return `<div class="q-stat-block"><div class="q-stat-item" onclick="toggleQuestionDetail(this)"><span class="q-label">${escapeHtml(label)}</span><div class="q-bar"><div class="fill" style="width:${rate}%;background:${color};"></div></div><span class="q-rate" style="color:${color};">${rate}%</span><span class="q-count">(${correct}/${total}) ▾</span></div><div class="q-expand">${detailHtml}</div></div>`; }
+    
+    let preHtml = '';
+    preQuestions.forEach((q, idx) => {
+        let correct = 0;
+        const optionCounts = {A:0, B:0, C:0, D:0};
+        const preStudents = studentData.filter(s => getLocalModuleData(s.studentId, 'pre'));
+        const fullRows = preStudents.map(s => {
+            const pre = getLocalModuleData(s.studentId, 'pre');
+            const ans = pre && pre.answers ? pre.answers[q.id] : '';
+            if (!ans) return { id: s.studentId, name: s.studentName, answer: '未作答', status: 'na' };
+            const ok = checkAnswer(q.id, ans);
+            if (ok) correct++;
+            if (q.type === 'choice' || q.type === 'judgment') { const label = ans.charAt(0); if (optionCounts.hasOwnProperty(label)) optionCounts[label]++; }
+            return { id: s.studentId, name: s.studentName, answer: ans, status: ok ? 'ok' : 'bad' };
+        });
+        const total = fullRows.length;
+        const rate = total > 0 ? Math.round(correct / total * 100) : 0;
+        const color = rate >= 80 ? '#48bb78' : (rate >= 60 ? '#ed8936' : '#e53e3e');
+        preHtml += makeBlock('Q' + (idx+1), rate, color, correct, total, buildAnswerRows(fullRows, optionCounts, total));
+    });
+    document.getElementById('preQuestionStats').innerHTML = preHtml || '<p style="color:#888;font-size:.7rem;text-align:center;padding:8px;">暂无数据</p>';
+    document.getElementById('preCountLabel').textContent = studentData.filter(s => s.hasPre).length + '人';
+    
+    let inHtml = '';
+    Object.keys(inclassCorrectAnswers).forEach((qid) => {
+        let correct = 0;
+        const optionCounts = {A:0, B:0, C:0, D:0};
+        const inStudents = studentData.filter(s => getLocalModuleData(s.studentId, 'inclass'));
+        const fullRows = inStudents.map(s => {
+            const inclass = getLocalModuleData(s.studentId, 'inclass');
+            const ans = inclass && inclass.answers ? inclass.answers[qid] : '';
+            if (!ans) return { id: s.studentId, name: s.studentName, answer: '未作答', status: 'na' };
+            const ok = ans === inclassCorrectAnswers[qid];
+            if (ok) correct++;
+            const label = ans.charAt(0); if (optionCounts.hasOwnProperty(label)) optionCounts[label]++;
+            return { id: s.studentId, name: s.studentName, answer: ans, status: ok ? 'ok' : 'bad' };
+        });
+        const total = fullRows.length;
+        const rate = total > 0 ? Math.round(correct / total * 100) : 0;
+        const color = rate >= 80 ? '#48bb78' : (rate >= 60 ? '#ed8936' : '#e53e3e');
+        inHtml += makeBlock(qid.replace('iq', 'Q'), rate, color, correct, total, buildAnswerRows(fullRows, optionCounts, total));
+    });
+    document.getElementById('inclassQuestionStats').innerHTML = inHtml || '<p style="color:#888;font-size:.7rem;text-align:center;padding:8px;">暂无数据</p>';
+    document.getElementById('inclassCountLabel').textContent = studentData.filter(s => s.hasInclass).length + '人';
+    
+    let quizHtml = '';
+    quizTestQuestions.forEach((q, idx) => {
+        let correct = 0;
+        const optionCounts = {A:0, B:0, C:0, D:0};
+        const quizStudents = studentData.filter(s => getLocalModuleData(s.studentId, 'quiz'));
+        const fullRows = quizStudents.map(s => {
+            const quiz = getLocalModuleData(s.studentId, 'quiz');
+            const ans = quiz && quiz.answers ? quiz.answers[q.id] : '';
+            if (!ans) return { id: s.studentId, name: s.studentName, answer: '未作答', status: 'na' };
+            const norm = ans.toString().toLowerCase().replace(/\s/g, '');
+            const correctAns = q.correct.toString().toLowerCase().replace(/\s/g, '');
+            const ok = norm === correctAns;
+            if (ok) correct++;
+            if (q.type === 'choice') { const label = ans.charAt(0); if (optionCounts.hasOwnProperty(label)) optionCounts[label]++; }
+            return { id: s.studentId, name: s.studentName, answer: ans, status: ok ? 'ok' : 'bad' };
+        });
+        const total = fullRows.length;
+        const rate = total > 0 ? Math.round(correct / total * 100) : 0;
+        const color = rate >= 80 ? '#48bb78' : (rate >= 60 ? '#ed8936' : '#e53e3e');
+        quizHtml += makeBlock('T' + (idx+1), rate, color, correct, total, buildAnswerRows(fullRows, optionCounts, total));
+    });
+    document.getElementById('quizQuestionStats').innerHTML = quizHtml || '<p style="color:#888;font-size:.7rem;text-align:center;padding:8px;">暂无数据</p>';
+    document.getElementById('quizCountLabel').textContent = studentData.filter(s => s.hasQuiz).length + '人';
+}
 
     function toggleQuestionDetail(el) { const block = el.closest('.q-stat-block'); if (!block) return; const wasOpen = block.classList.contains('open'); const col = block.parentElement; if (col) col.querySelectorAll('.q-stat-block.open').forEach(b => b.classList.remove('open')); if (!wasOpen) block.classList.add('open'); }
 
     // ================================================================
-    // 认知诊断（简化版）
+    // 认知诊断
     // ================================================================
-    function generateCognitionDiagnosis() {
-        const container = document.getElementById('cognitionDiagnosisContent');
-        if (!container) return;
-        const allStudentIds = Object.keys(studentProfiles);
-        if (allStudentIds.length === 0) { container.innerHTML = '<div style="color:#888;font-size:.7rem;text-align:center;padding:20px;">暂无学生数据</div>'; return; }
-        container.innerHTML = '<div style="color:#48bb78;font-size:.7rem;text-align:center;padding:20px;">🧠 已收集 ' + allStudentIds.length + ' 名学生的答题数据，认知诊断持续分析中...</div>';
-        renderDiagnosticCloud();
+    
+       function generateCognitionDiagnosis() {
+    const container = document.getElementById('cognitionDiagnosisContent');
+    if (!container) return;
+
+    function getLocalModuleData(studentId, moduleName) {
+        try {
+            const raw = localStorage.getItem(`module_${moduleName}_${studentId}`);
+            return raw ? JSON.parse(raw) : null;
+        } catch(e) { return null; }
     }
 
-    function renderDiagnosticCloud() {
-        const container = document.getElementById('diagnosticCloudContainer');
-        if (!container) return;
-        container.innerHTML = '<div class="diagnostic-cloud"><div class="cloud-title">🧠 班级认知维度诊断</div><div style="font-size:.65rem;color:#888;padding:8px;">数据积累中，完成更多学生提交后将生成诊断词云。</div></div>';
+    // 认知维度定义：每个知识点关联的题目
+    const DIMENSIONS = [
+        { id: 'projection_concept', label: '投影类型概念混淆', emoji: '🟡', color: '#2b6cb0', qids: ['q1', 'q7'] },
+        { id: 'projection_principle', label: '投影几何原理理解断层', emoji: '🟢', color: '#276749', qids: ['q2'] },
+        { id: 'central_meridian', label: '中央经线特性记忆模糊', emoji: '🟠', color: '#d69e2e', qids: ['q3', 'q10'] },
+        { id: 'deformation_law', label: '变形规律逻辑偏差', emoji: '🔴', color: '#e53e3e', qids: ['q4', 'q8'] },
+        { id: 'zone_calculation', label: '分带计算公式误用', emoji: '🟣', color: '#553c9a', qids: ['q5', 'q9', 'q12'] },
+        { id: 'coordinate_translation', label: '坐标平移目的理解偏差', emoji: '🔵', color: '#2b6cb0', qids: ['q6', 'q11'] }
+    ];
+
+    // 收集所有学生的 pre 模块数据
+    const allStudentIds = Object.keys(studentProfiles);
+    const activeStudents = [];
+    allStudentIds.forEach(sid => {
+        const preData = getLocalModuleData(sid, 'pre');
+        if (preData && preData.answers && Object.keys(preData.answers).length > 0) {
+            activeStudents.push({
+                studentId: sid,
+                studentName: studentProfiles[sid]?.studentName || sid,
+                answers: preData.answers,
+                wrongDetails: preData.wrongDetails || []
+            });
+        }
+    });
+
+    if (activeStudents.length === 0) {
+        container.innerHTML = '<div style="color:#888;font-size:.7rem;text-align:center;padding:20px;">暂无学生提交数据，学生完成课前诊断后将自动生成诊断</div>';
+        return;
     }
+
+    const totalStudents = activeStudents.length;
+
+    // 分析每个维度
+    const dimensionStats = [];
+    DIMENSIONS.forEach(dim => {
+        const affectedStudents = [];
+        const questionWrongCount = {};
+        let totalWrong = 0;
+
+        activeStudents.forEach(stu => {
+            let studentHasError = false;
+            dim.qids.forEach(qid => {
+                const q = preQuestions.find(qq => qq.id === qid);
+                if (!q) return;
+                const userAns = stu.answers[qid];
+                if (userAns === undefined || userAns === '') return;
+                const isCorrect = checkAnswer(qid, userAns);
+                if (!isCorrect) {
+                    studentHasError = true;
+                    totalWrong++;
+                    questionWrongCount[qid] = (questionWrongCount[qid] || 0) + 1;
+                }
+            });
+            if (studentHasError) affectedStudents.push(stu);
+        });
+
+        const pct = Math.round(affectedStudents.length / totalStudents * 100);
+        if (affectedStudents.length > 0) {
+            dimensionStats.push({
+                id: dim.id, label: dim.label, emoji: dim.emoji, color: dim.color,
+                affected: affectedStudents.length,
+                affectedNames: affectedStudents.map(s => s.studentName),
+                pct: pct,
+                totalWrong: totalWrong,
+                questionWrongCount: questionWrongCount
+            });
+        }
+    });
+
+    // 按受影响比例降序
+    dimensionStats.sort((a, b) => b.pct - a.pct);
+
+    // 收集所有错题（全班范围）
+    const allWrongQuestions = {};
+    activeStudents.forEach(stu => {
+        (stu.wrongDetails || []).forEach(w => {
+            if (!allWrongQuestions[w.id]) {
+                allWrongQuestions[w.id] = { id: w.id, text: w.text, topic: w.topic, count: 0, students: [] };
+            }
+            allWrongQuestions[w.id].count++;
+            allWrongQuestions[w.id].students.push(stu.studentName);
+        });
+    });
+    const topWrongQuestions = Object.values(allWrongQuestions).sort((a, b) => b.count - a.count).slice(0, 5);
+
+    // 生成 HTML
+    let html = `<div style="font-size:.65rem;color:#888;margin-bottom:10px;">📊 基于 ${totalStudents} 名学生的课前诊断数据，自动分析认知偏差</div>`;
+
+    if (dimensionStats.length === 0) {
+        html += `<div style="color:#48bb78;font-size:.75rem;text-align:center;padding:20px;">🎉 所有学生在各认知维度上表现良好，无明显共性偏差！</div>`;
+    } else {
+        dimensionStats.forEach(dim => {
+            // 生成句子
+            let sentence = `${dim.pct}% 学生（${dim.affected}/${totalStudents}人）在「${dim.label}」上存在认知偏差`;
+            
+            // 具体错题
+            const wrongQids = Object.keys(dim.questionWrongCount).sort((a, b) => dim.questionWrongCount[b] - dim.questionWrongCount[a]);
+            if (wrongQids.length > 0) {
+                const qDetails = wrongQids.slice(0, 3).map(qid => {
+                    const q = preQuestions.find(qq => qq.id === qid);
+                    const qNum = q ? (preQuestions.indexOf(q) + 1) : qid;
+                    return `Q${qNum}(${dim.questionWrongCount[qid]}人错)`;
+                }).join('、');
+                sentence += ` — 典型错题：${qDetails}`;
+            }
+
+            const studentNamesStr = dim.affectedNames.slice(0, 8).join('、');
+            const moreText = dim.affectedNames.length > 8 ? ` 等 ${dim.affectedNames.length} 人` : '';
+
+            html += `<div style="background:#fff;border-radius:6px;padding:10px 12px;margin-bottom:8px;border-left:4px solid ${dim.color};box-shadow:0 1px 2px rgba(0,0,0,.04);">
+                <div style="display:flex;align-items:flex-start;gap:8px;">
+                    <span style="font-size:1.1rem;flex-shrink:0;">${dim.emoji}</span>
+                    <div style="flex:1;">
+                        <div style="font-size:.78rem;font-weight:600;color:#2d3748;line-height:1.5;margin-bottom:4px;">${sentence}</div>
+                        <div style="font-size:.6rem;color:#888;display:flex;gap:12px;flex-wrap:wrap;">
+                            <span>👥 受影响：${studentNamesStr}${moreText}</span>
+                            <span>❌ 共 ${dim.totalWrong} 条错题</span>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        });
+    }
+
+    // 全班共性错题 TOP
+    if (topWrongQuestions.length > 0) {
+        html += `<div style="margin-top:12px;padding-top:10px;border-top:1px dashed #e2e8f0;">
+            <div style="font-size:.72rem;font-weight:600;color:#2d3748;margin-bottom:6px;">📊 班级共性错题 TOP ${topWrongQuestions.length}</div>`;
+        topWrongQuestions.forEach((w, idx) => {
+            const q = preQuestions.find(qq => qq.id === w.id);
+            const qNum = q ? (preQuestions.indexOf(q) + 1) : w.id;
+            const rate = Math.round(w.count / totalStudents * 100);
+            const color = rate >= 70 ? '#e53e3e' : (rate >= 40 ? '#ed8936' : '#d69e2e');
+            html += `<div style="background:#fafbfc;border-radius:4px;padding:6px 10px;margin-bottom:4px;display:flex;align-items:center;gap:8px;">
+                <span style="font-size:.6rem;font-weight:700;background:${color};color:#fff;padding:1px 6px;border-radius:8px;flex-shrink:0;">TOP${idx+1}</span>
+                <span style="font-size:.68rem;color:#2d3748;flex:1;">Q${qNum} ${w.topic || ''}：${w.text.substring(0, 25)}...</span>
+                <span style="font-size:.6rem;font-weight:700;color:${color};flex-shrink:0;">${w.count}人错 / ${rate}%</span>
+            </div>`;
+        });
+        html += `</div>`;
+    }
+
+    container.innerHTML = html;
+
+    // 同时更新词云
+    renderDiagnosticCloud(dimensionStats, totalStudents);
+}
+
+   
+       function renderDiagnosticCloud(dimensionStats, totalStudents) {
+    const container = document.getElementById('diagnosticCloudContainer');
+    if (!container) return;
+
+    if (!dimensionStats || dimensionStats.length === 0) {
+        container.innerHTML = '<div style="color:#48bb78;font-size:.7rem;text-align:center;padding:20px;">🎉 暂无认知偏差，全班掌握情况良好</div>';
+        return;
+    }
+
+    // 根据受影响比例，生成不同大小和颜色的词云标签
+    const colorMap = {
+        'projection_concept': 'color-blue',
+        'projection_principle': 'color-green',
+        'central_meridian': 'color-orange',
+        'deformation_law': 'color-red',
+        'zone_calculation': 'color-purple',
+        'coordinate_translation': 'color-blue'
+    };
+
+    let html = `<div class="diagnostic-cloud">
+        <div class="cloud-title">🧠 班级认知维度诊断 <span class="badge-count">基于 ${totalStudents} 名学生</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 0;">`;
+
+    dimensionStats.forEach(dim => {
+        let sizeClass = 'size-sm';
+        if (dim.pct >= 70) sizeClass = 'size-xl';
+        else if (dim.pct >= 50) sizeClass = 'size-lg';
+        else if (dim.pct >= 25) sizeClass = 'size-md';
+        const colorClass = colorMap[dim.id] || 'color-blue';
+        html += `<span class="tag ${sizeClass} ${colorClass}" title="${dim.label}：影响 ${dim.affected} 人（${dim.pct}%）">${dim.emoji} ${dim.label}</span>`;
+    });
+
+    html += `</div><div style="margin-top:8px;border-top:1px dashed #edf2f7;padding-top:8px;">`;
+
+    dimensionStats.slice(0, 4).forEach(dim => {
+        html += `<div style="font-size:.62rem;padding:3px 0;color:#4a5568;">
+            • <span style="font-weight:700;color:${dim.color};">${dim.pct}%</span> 的学生存在「${dim.label}」，共 ${dim.totalWrong} 条错题
+        </div>`;
+    });
+
+    html += `</div></div>`;
+    container.innerHTML = html;
+}
 
     // ================================================================
     // 学生切换
@@ -2199,7 +2388,7 @@
     }
 
     // ================================================================
-    // 教学总结
+    // 教学总结（关键修复：用 for...of 而不是 .map）
     // ================================================================
     async function loadTeacherDashboard() {
         try {
@@ -2209,19 +2398,40 @@
             updateClassTotalHint();
             const profiles = JSON.parse(localStorage.getItem('student_profiles') || '{}');
             studentProfiles = profiles;
-            const studentData = Object.values(profiles).map(p => {
+
+            const studentData = [];
+            for (const p of Object.values(profiles)) {
                 const id = p.studentId;
-                const compData = calculateComprehensiveLevel(id);
-                const hwRaw = getModuleData(id, 'homework');
+                const compData = await calculateComprehensiveLevel(id);
+                const hwRaw = await getModuleData(id, 'homework');
                 const isReviewed = hwRaw && hwRaw.reviewed === true;
-                return { studentId: id, studentName: p.studentName || '未命名', hasPre: compData.hasPre, hasInclass: compData.hasInclass, hasQuiz: compData.hasQuiz, hasHomework: compData.hasHomework, preCorrect: compData.hasPre ? compData.preScore : null, inclassCorrect: compData.hasInclass ? compData.inclassScore : null, quizScore: compData.hasQuiz ? compData.quizScore : null, homeworkTotal: (hwRaw && hwRaw.total !== undefined) ? (isReviewed && hwRaw.reviewTotal !== undefined ? hwRaw.reviewTotal : hwRaw.total) : null, homeworkLevel: (hwRaw && hwRaw.reviewed && hwRaw.reviewLevel) ? hwRaw.reviewLevel : (hwRaw && hwRaw.level ? hwRaw.level : null), isReviewed: isReviewed, growth: compData.growth, comprehensiveScore: compData.comprehensiveScore, totalTime: compData.totalTime || 0, readingTime: compData.readingTime || 0, operationTime: compData.operationTime || 0, speedLevel: compData.speedLevel || '未测量', engagementScore: compData.engagementScore || 0 };
-            }).filter(s => s.hasPre || s.hasInclass || s.hasQuiz || s.hasHomework);
+                const hasAny = compData.hasPre || compData.hasInclass || compData.hasQuiz || compData.hasHomework;
+                if (!hasAny) continue;
+                studentData.push({
+                    studentId: id, studentName: p.studentName || '未命名',
+                    hasPre: compData.hasPre, hasInclass: compData.hasInclass,
+                    hasQuiz: compData.hasQuiz, hasHomework: compData.hasHomework,
+                    preCorrect: compData.hasPre ? compData.preScore : null,
+                    inclassCorrect: compData.hasInclass ? compData.inclassScore : null,
+                    quizScore: compData.hasQuiz ? compData.quizScore : null,
+                    homeworkTotal: (hwRaw && hwRaw.total !== undefined) ? (isReviewed && hwRaw.reviewTotal !== undefined ? hwRaw.reviewTotal : hwRaw.total) : null,
+                    homeworkLevel: (hwRaw && hwRaw.reviewed && hwRaw.reviewLevel) ? hwRaw.reviewLevel : (hwRaw && hwRaw.level ? hwRaw.level : null),
+                    isReviewed: isReviewed,
+                    growth: compData.growth, comprehensiveScore: compData.comprehensiveScore,
+                    totalTime: compData.totalTime || 0, readingTime: compData.readingTime || 0,
+                    operationTime: compData.operationTime || 0,
+                    speedLevel: compData.speedLevel || '未测量',
+                    engagementScore: compData.engagementScore || 0
+                });
+            }
+
             const participated = studentData.length;
             const classTotal = classTotalStudents > 0 ? classTotalStudents : 0;
             const avgPre = studentData.filter(s => s.preCorrect !== null).length > 0 ? Math.round(studentData.filter(s => s.preCorrect !== null).reduce((a, s) => a + s.preCorrect, 0) / studentData.filter(s => s.preCorrect !== null).length) : 0;
             const avgInclass = studentData.filter(s => s.inclassCorrect !== null).length > 0 ? Math.round(studentData.filter(s => s.inclassCorrect !== null).reduce((a, s) => a + s.inclassCorrect, 0) / studentData.filter(s => s.inclassCorrect !== null).length) : 0;
             const avgQuiz = studentData.filter(s => s.quizScore !== null).length > 0 ? Math.round(studentData.filter(s => s.quizScore !== null).reduce((a, s) => a + s.quizScore, 0) / studentData.filter(s => s.quizScore !== null).length) : 0;
             const avgHw = studentData.filter(s => s.homeworkTotal !== null).length > 0 ? Math.round(studentData.filter(s => s.homeworkTotal !== null).reduce((a, s) => a + s.homeworkTotal, 0) / studentData.filter(s => s.homeworkTotal !== null).length) : 0;
+
             document.getElementById('statTotal').textContent = classTotal > 0 ? classTotal : '未设';
             const partEl = document.getElementById('statParticipated'); if (partEl) partEl.textContent = participated;
             document.getElementById('statAvgPre').textContent = avgPre + '%';
@@ -2229,37 +2439,65 @@
             document.getElementById('statAvgQuiz').textContent = avgQuiz;
             const avgHwEl = document.getElementById('statAvgHomework'); if (avgHwEl) avgHwEl.textContent = avgHw;
             document.getElementById('statAvgGrowth').textContent = '—';
+
             const dims = [{label:'前测', val:avgPre, color:'#60b0f4'},{label:'课中', val:avgInclass, color:'#48bb78'},{label:'后测', val:avgQuiz, color:'#ed8936'},{label:'作业', val:avgHw, color:'#9f7aea'}];
             const maxDim = Math.max(100, ...dims.map(d => d.val), 1);
             const dimHtml = dims.map(d => '<div class="bar-item"><div class="bar" style="height:' + ((d.val/maxDim)*60) + 'px;background:' + d.color + ';"></div><div class="val">' + d.val + '</div><div class="lbl">' + d.label + '</div></div>').join('');
             document.getElementById('dimensionDistribution').innerHTML = dimHtml;
+
             const denom = classTotal;
             const pct = (n) => denom > 0 ? Math.round(n / denom * 100) : 0;
-            const compData2 = [{label:'课前', done: studentData.filter(s => s.hasPre).length, val: pct(studentData.filter(s => s.hasPre).length), color:'#60b0f4'},{label:'课中', done: studentData.filter(s => s.hasInclass).length, val: pct(studentData.filter(s => s.hasInclass).length), color:'#48bb78'},{label:'后测', done: studentData.filter(s => s.hasQuiz).length, val: pct(studentData.filter(s => s.hasQuiz).length), color:'#ed8936'},{label:'作业', done: studentData.filter(s => s.hasHomework).length, val: pct(studentData.filter(s => s.hasHomework).length), color:'#9f7aea'}];
+            const compData2 = [
+                {label:'课前', done: studentData.filter(s => s.hasPre).length, val: pct(studentData.filter(s => s.hasPre).length), color:'#60b0f4'},
+                {label:'课中', done: studentData.filter(s => s.hasInclass).length, val: pct(studentData.filter(s => s.hasInclass).length), color:'#48bb78'},
+                {label:'后测', done: studentData.filter(s => s.hasQuiz).length, val: pct(studentData.filter(s => s.hasQuiz).length), color:'#ed8936'},
+                {label:'作业', done: studentData.filter(s => s.hasHomework).length, val: pct(studentData.filter(s => s.hasHomework).length), color:'#9f7aea'}
+            ];
             const maxComp = Math.max(...compData2.map(d => d.val), 1);
             const compHtml = denom > 0 ? compData2.map(d => '<div class="bar-item" title="' + d.done + '/' + denom + '"><div class="bar" style="height:' + ((d.val/maxComp)*60) + 'px;background:' + d.color + ';"></div><div class="val">' + d.val + '%</div><div class="lbl">' + d.label + '<br><span style="font-size:.4rem;color:#a0aec0">' + d.done + '/' + denom + '</span></div></div>').join('') : '<div style="width:100%;text-align:center;color:#ed8936;font-size:.7rem;padding:20px 8px;">请先设置班级总人数</div>';
             document.getElementById('completionDistribution').innerHTML = compHtml;
+
             const hwStudents = studentData.filter(s => s.hasHomework);
             let lvExcellent = 0, lvGood = 0, lvNeed = 0;
-            hwStudents.forEach(s => { const lv = s.homeworkLevel || ''; const hwRaw = getModuleData(s.studentId, 'homework'); const finalLevel = hwRaw && hwRaw.reviewed && hwRaw.reviewLevel ? hwRaw.reviewLevel : lv; if (finalLevel === '优秀') lvExcellent++; else if (finalLevel === '良好') lvGood++; else lvNeed++; });
+            for (const s of hwStudents) {
+                const hwRaw = await getModuleData(s.studentId, 'homework');
+                const finalLevel = hwRaw && hwRaw.reviewed && hwRaw.reviewLevel ? hwRaw.reviewLevel : (s.homeworkLevel || '');
+                if (finalLevel === '优秀') lvExcellent++;
+                else if (finalLevel === '良好') lvGood++;
+                else lvNeed++;
+            }
             document.getElementById('hwLvExcellent').textContent = lvExcellent;
             document.getElementById('hwLvGood').textContent = lvGood;
             document.getElementById('hwLvNeed').textContent = lvNeed;
             document.getElementById('hwLvAvg').textContent = avgHw;
             const hwHint = document.getElementById('hwCompletionHint');
             const reviewedCount = hwStudents.filter(s => s.isReviewed).length;
-            if (hwHint) { if (denom > 0) hwHint.textContent = '作业完成率：' + pct(hwStudents.length) + '%（' + hwStudents.length + '/' + denom + '） · 已复核 ' + reviewedCount + '/' + hwStudents.length + ' · 优秀 ' + lvExcellent + ' / 良好 ' + lvGood + ' / 需努力 ' + lvNeed; else hwHint.textContent = '已交作业 ' + hwStudents.length + ' 人 · 已复核 ' + reviewedCount + ' 人 · 优秀 ' + lvExcellent + ' / 良好 ' + lvGood + ' / 需努力 ' + lvNeed + '（请先设置班级总人数以计算完成率）'; }
+            if (hwHint) {
+                if (denom > 0) hwHint.textContent = '作业完成率：' + pct(hwStudents.length) + '%（' + hwStudents.length + '/' + denom + '） · 已复核 ' + reviewedCount + '/' + hwStudents.length + ' · 优秀 ' + lvExcellent + ' / 良好 ' + lvGood + ' / 需努力 ' + lvNeed;
+                else hwHint.textContent = '已交作业 ' + hwStudents.length + ' 人 · 已复核 ' + reviewedCount + ' 人 · 优秀 ' + lvExcellent + ' / 良好 ' + lvGood + ' / 需努力 ' + lvNeed + '（请先设置班级总人数以计算完成率）';
+            }
+
             renderConfusionSummary();
             renderQuestionAnalysis(studentData);
             generateCognitionDiagnosis();
             renderHomeworkReviewList();
             renderResourceLibrary();
+
             const fmtScore = (v) => (v === null || v === undefined) ? '<span style="color:#a0aec0;">—</span>' : v;
             const scoreBadge = (v, suffix='%') => { if (v === null || v === undefined) return '<span style="color:#a0aec0;">—</span>'; const cls = v >= 70 ? 'good' : (v >= 50 ? 'average' : 'poor'); return '<span class="score-badge ' + cls + '">' + v + suffix + '</span>'; };
             const levelBadge = (lv) => { if (!lv) return '<span style="color:#a0aec0;">—</span>'; const cls = lv === '优秀' ? 'excellent' : (lv === '良好' ? 'good' : 'poor'); return '<span class="score-badge ' + cls + '">' + lv + '</span>'; };
+
             let tableHtml = '';
-            if (studentData.length === 0) tableHtml = '<tr><td colspan="11" style="text-align:center;color:#888;padding:20px;">暂无已提交数据</td></tr>';
-            else { studentData.forEach(s => { const growthStr = (s.growth === null || s.growth === undefined) ? '<span style="color:#a0aec0;">—</span>' : '<span style="color:' + (s.growth>=0?'#38a169':'#e53e3e') + ';">' + (s.growth>=0?'+':'') + s.growth + '</span>'; const hwTotalStr = s.homeworkTotal === null || s.homeworkTotal === undefined ? '<span style="color:#a0aec0;">—</span>' : '<span class="score-badge ' + (s.homeworkTotal>=24?'excellent':(s.homeworkTotal>=18?'good':'poor')) + '">' + s.homeworkTotal + (s.isReviewed ? ' ✅' : '') + '</span>'; const timeStr = s.totalTime > 0 ? '<span class="student-time-badge">📖 ' + formatTime(s.readingTime || 0) + ' 💻 ' + formatTime(s.operationTime || 0) + '</span>' : '<span style="color:#a0aec0;">—</span>'; tableHtml += '<tr><td>' + s.studentId + '</td><td>' + s.studentName + '</td><td>' + scoreBadge(s.preCorrect, '%') + '</td><td>' + scoreBadge(s.inclassCorrect, '%') + '</td><td>' + fmtScore(s.quizScore) + '</td><td>' + hwTotalStr + '</td><td>' + levelBadge(s.homeworkLevel) + '</td><td>' + growthStr + '</td><td>' + fmtScore(s.comprehensiveScore) + '</td><td>' + timeStr + '</td><td><button class="detail-btn" onclick="openStudentModal(\'' + s.studentId + '\')">📊</button></td></tr>'; }); }
+            if (studentData.length === 0) {
+                tableHtml = '<tr><td colspan="11" style="text-align:center;color:#888;padding:20px;">暂无已提交数据</td></tr>';
+            } else {
+                studentData.forEach(s => {
+                    const growthStr = (s.growth === null || s.growth === undefined) ? '<span style="color:#a0aec0;">—</span>' : '<span style="color:' + (s.growth>=0?'#38a169':'#e53e3e') + ';">' + (s.growth>=0?'+':'') + s.growth + '</span>';
+                    const hwTotalStr = s.homeworkTotal === null || s.homeworkTotal === undefined ? '<span style="color:#a0aec0;">—</span>' : '<span class="score-badge ' + (s.homeworkTotal>=24?'excellent':(s.homeworkTotal>=18?'good':'poor')) + '">' + s.homeworkTotal + (s.isReviewed ? ' ✅' : '') + '</span>';
+                    const timeStr = s.totalTime > 0 ? '<span class="student-time-badge">📖 ' + formatTime(s.readingTime || 0) + ' 💻 ' + formatTime(s.operationTime || 0) + '</span>' : '<span style="color:#a0aec0;">—</span>';
+                    tableHtml += '<tr><td>' + s.studentId + '</td><td>' + s.studentName + '</td><td>' + scoreBadge(s.preCorrect, '%') + '</td><td>' + scoreBadge(s.inclassCorrect, '%') + '</td><td>' + fmtScore(s.quizScore) + '</td><td>' + hwTotalStr + '</td><td>' + levelBadge(s.homeworkLevel) + '</td><td>' + growthStr + '</td><td>' + fmtScore(s.comprehensiveScore) + '</td><td>' + timeStr + '</td><td><button class="detail-btn" onclick="openStudentModal(\'' + s.studentId + '\')">📊</button></td></tr>';
+                });
+            }
             document.getElementById('teacherTableBody').innerHTML = tableHtml;
             document.getElementById('teacherLastUpdate').textContent = '最后更新：' + new Date().toLocaleString();
         } catch (error) { document.getElementById('teacherTableBody').innerHTML = '<tr><td colspan="11" style="text-align:center;color:#e53e3e;padding:20px;">❌ 加载失败：' + error.message + '</td></tr>'; }
@@ -2291,16 +2529,16 @@
     function saveClassTotal() { const input = document.getElementById('classTotalInput'); if (!input) return; const n = parseInt(input.value, 10); if (!n || n < 1) { alert('请输入有效的班级总人数（≥1）'); return; } classTotalStudents = n; localStorage.setItem('class_total_students', String(n)); updateClassTotalHint(); loadTeacherDashboard(); }
     function updateClassTotalHint() { const hint = document.getElementById('classTotalHint'); if (!hint) return; if (classTotalStudents > 0) { hint.textContent = '当前班级总人数 ' + classTotalStudents + ' 人。完成率 = 提交人数 ÷ ' + classTotalStudents; hint.style.color = '#276749'; } else { hint.textContent = '完成率 = 该模块提交人数 ÷ 班级总人数。请先设置总人数。'; hint.style.color = '#888'; } }
 
-    function openStudentModal(studentId) {
+    async function openStudentModal(studentId) {
         const modal = document.getElementById('studentModal');
         const content = document.getElementById('modalContent');
         const title = document.getElementById('modalTitle');
         const profile = getStudentProfile(studentId);
         if (!profile) { content.innerHTML = '<p style="color:#888;">未找到该学生数据</p>'; modal.classList.add('active'); return; }
         title.textContent = '📊 ' + (profile.studentName || '学生') + ' 个人画像（六维）';
-        const compData = calculateComprehensiveLevel(studentId);
-        const preData = getModuleData(studentId, 'pre');
-        const inclassData = getModuleData(studentId, 'inclass');
+        const compData = await calculateComprehensiveLevel(studentId);
+        const preData = await getModuleData(studentId, 'pre');
+        const inclassData = await getModuleData(studentId, 'inclass');
         const knowledge = calculateKnowledgeFromData(preData, inclassData);
         const knowledgeHtml = Object.entries(knowledge).map(([k,v]) => '<div style="display:flex;justify-content:space-between;font-size:.75rem;padding:2px 0;border-bottom:1px solid #edf2f7;"><span>' + k + '</span><span style="font-weight:700;color:' + (v>=70?'#38a169':v>=50?'#d69e2e':'#e53e3e') + ';">' + v + '%</span></div>').join('');
         const studentQuestions = confusionData[studentId] || [];
