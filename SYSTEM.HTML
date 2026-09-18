@@ -5289,12 +5289,20 @@ window.onDataModalConfirm = function() {
 // ================================================================
 // 【阶段3-C】清除：按勾选删除云端 + 本地 + 内存重置（v3）
 // ================================================================
+// ================================================================
+// 【阶段3-C】清除：按勾选删除云端 + 本地 + 内存重置（v4 含 confusion）
+// ================================================================
 async function doClear(selected) {
     const summary = selected.map(s => {
         if (s.subModule === '*ALL*') return formatModuleName(s.module) + '（整个模块）';
         return s.subModule ? formatModuleName(s.module + '-' + s.subModule) : formatModuleName(s.module);
     }).join('、');
-    if (!confirm('⚠️ 确定清除以下模块的数据？\n\n' + summary + '\n\n清除后不可恢复，建议先导出备份！')) return;
+
+    // 提示里额外说明：勾"课前诊断"会连带清除"困惑记录"
+    const hasPre = selected.some(s => s.module === 'pre');
+    const extraTip = hasPre ? '\n\n⚠️ 注意：勾选"课前诊断"会同时清除"困惑记录"（confusion）。' : '';
+
+    if (!confirm('⚠️ 确定清除以下模块的数据？\n\n' + summary + extraTip + '\n\n清除后不可恢复，建议先导出备份！')) return;
 
     const btn = document.getElementById('dmConfirmBtn');
     btn.disabled = true;
@@ -5326,6 +5334,40 @@ async function doClear(selected) {
             }
         }
 
+        // ============ 1.5 【新增】勾了"课前诊断" → 顺带清 confusion ============
+        if (hasPre) {
+            try {
+                // 云端：删所有 module='confusion' 的记录
+                await callCloudFunction('delete', { module: 'confusion' });
+
+                // 本地：清 confusion_data + module_confusion_* 缓存
+                localStorage.removeItem('confusion_data');
+                Object.keys(localStorage).forEach(k => {
+                    if (k.startsWith('module_confusion_')) localStorage.removeItem(k);
+                });
+
+                // 内存变量：清空 confusionData
+                if (typeof confusionData !== 'undefined') {
+                    confusionData = {};
+                }
+
+                // 页面上"已提交困惑"显示区也隐藏
+                const cd = document.getElementById('preConfusionDisplay');
+                if (cd) cd.style.display = 'none';
+                // 困惑标签高亮也清掉
+                document.querySelectorAll('#preConfusionTags .tag').forEach(t => {
+                    t.classList.remove('selected-history');
+                    t.classList.remove('active');
+                });
+
+                success++;
+                console.log('✅ 已清除云端 + 本地的 confusion 记录（含内存变量、DOM 高亮）');
+            } catch (e) {
+                fail++;
+                console.error('清除 confusion 失败：', e);
+            }
+        }
+
         // ============ 2. 清 submitted_records（按模块）============
         try {
             let records = JSON.parse(localStorage.getItem('submitted_records') || '{}');
@@ -5351,19 +5393,13 @@ async function doClear(selected) {
                 if (clearedModules.has('pre') && k.startsWith('pre_answers_draft_')) {
                     localStorage.removeItem(k);
                 }
-                // 【关键】清作业缓存
                 if (clearedModules.has('homework') && k.startsWith('hw_tasks_')) {
                     localStorage.removeItem(k);
                 }
             });
         } catch (e) { console.error('清除草稿失败：', e); }
 
-        // ============ 4. 清困惑 ============
-        const hasPre = selected.some(s => s.module === 'pre');
-        if (hasPre) {
-            localStorage.removeItem('confusion_data');
-            console.log('✅ 已清除课前困惑缓存');
-        }
+        // ============ 4. （已合并到 1.5，此处不再重复处理 confusion） ============
 
         // ============ 5. 重置内存变量 ============
         try {
@@ -5406,7 +5442,6 @@ async function doClear(selected) {
                 }
             }
 
-            // 【关键】清作业面板 DOM
             if (clearedModules.has('homework')) {
                 const hwContent = document.getElementById('homeworkContent');
                 if (hwContent) {
@@ -5426,7 +5461,7 @@ async function doClear(selected) {
         } catch (e) { console.error('重置内存失败：', e); }
 
         // ============ 6. 重新拉数据 + 刷新 ============
-        alert('✅ 清除完成！\n\n成功：' + success + ' 个模块\n失败：' + fail + ' 个模块');
+        alert('✅ 清除完成！\n\n成功：' + success + ' 个模块\n失败：' + fail + ' 个模块' + (hasPre ? '\n（含困惑记录 confusion）' : ''));
         closeDataModal();
 
         await loadAllStudentsFromCloud();
