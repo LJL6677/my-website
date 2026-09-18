@@ -488,6 +488,7 @@
     <button class="btn-sm btn-outline" onclick="exportAllData()" title="导出全量数据为JSON">📥 导出</button>
     <button class="btn-sm btn-outline" onclick="openImportDialog()" title="从JSON文件导入数据">📤 导入</button>
     <button class="btn-sm btn-outline" onclick="openClearDialog()" title="按模块清除数据" style="border-color:#e53e3e;color:#e53e3e;">🗑️ 清除</button>
+   <!-- <button class="btn-sm btn-outline" onclick="clearMyLocalData()" title="清除本机缓存，重新从云端加载数据" style="border-color:#ed8936;color:#ed8936;">🧹 清除本机缓存</button> -->
     <button class="btn-sm btn-danger" onclick="resetAllData()">🔄 重置</button>
 </div>
  </div>
@@ -505,6 +506,8 @@
                     <label>👤 姓名：</label><input type="text" id="studentName" placeholder="填写姓名" onchange="onStudentChange('pre')">
                     <label>📚 学号：</label><input type="text" id="studentId" placeholder="填写学号" onchange="onStudentChange('pre')"><span class="stu-id-hint" id="studentIdHint"></span>
                     <button class="btn" onclick="saveStudentInfo('pre')">保存</button>
+                    <!-- <button class="btn" onclick="saveStudentInfo('pre')">保存</button> -->
+<button class="btn" onclick="clearMyLocalData('pre')" style="background:#ed8936;margin-left:4px;" title="清除本机缓存，重新从云端加载">🧹 清除本机缓存</button>
                     <span class="status" id="preStatus"></span>
                     <span class="lock-badge" id="preLockBadge">🔒 已提交</span>
                     <span style="margin-left:auto;font-size:.65rem;color:#888;">⏱️ <span id="readingTimer" class="timer-num">00:00</span> ✅ <span id="correctCount">0</span>/<span id="preTotalCount">5</span>
@@ -586,7 +589,9 @@
                     <div class="student-bar">
                         <label>👤 姓名：</label><input type="text" id="inStudentName" placeholder="填写姓名" onchange="onStudentChange('inclass')">
                         <label>📚 学号：</label><input type="text" id="inStudentId" placeholder="填写学号" onchange="onStudentChange('inclass')"><span class="stu-id-hint" id="inStudentIdHint"></span>
-                        <button class="btn" onclick="saveStudentInfo('inclass')">保存</button>
+                       <button class="btn" onclick="saveStudentInfo('inclass')">保存</button>
+<button class="btn" onclick="clearMyLocalData('inclass')" style="background:#ed8936;margin-left:4px;" title="清除本机缓存，重新从云端加载">🧹 清除本机缓存</button>
+
                         <span class="status" id="inStatus"></span>
                         <span class="lock-badge" id="inLockBadge">🔒 已提交</span>
                         <span class="lock-hint" id="inLockHint">⚠️ 请先填写姓名和学号</span>
@@ -709,6 +714,8 @@
                         <label>👤 姓名：</label><input type="text" id="quizStudentName" placeholder="填写姓名" onchange="onStudentChange('quiz')">
                         <label>📚 学号：</label><input type="text" id="quizStudentId" placeholder="填写学号" onchange="onStudentChange('quiz')"><span class="stu-id-hint" id="quizStudentIdHint"></span>
                         <button class="btn" onclick="saveStudentInfo('quiz')">保存</button>
+                        <!-- <button class="btn" onclick="saveStudentInfo('quiz')">保存</button> -->
+<button class="btn" onclick="clearMyLocalData('quiz')" style="background:#ed8936;margin-left:4px;" title="清除本机缓存，重新从云端加载">🧹 清除本机缓存</button>
                         <span class="status" id="quizStatus"></span>
                         <span class="lock-badge" id="quizLockBadge">🔒 已提交</span>
                         <span class="lock-hint" id="quizLockHint">⚠️ 请先填写姓名和学号</span>
@@ -732,7 +739,8 @@
                     <div class="student-bar">
                         <label>👤 姓名：</label><input type="text" id="hwStudentName" placeholder="填写姓名" onchange="onStudentChange('homework')">
                         <label>📚 学号：</label><input type="text" id="hwStudentId" placeholder="填写学号" onchange="onStudentChange('homework')"><span class="stu-id-hint" id="hwStudentIdHint"></span>
-                        <button class="btn" onclick="saveStudentInfo('homework')">保存</button>
+                       <button class="btn" onclick="saveStudentInfo('homework')">保存</button>
+<button class="btn" onclick="clearMyLocalData('homework')" style="background:#ed8936;margin-left:4px;" title="清除本机缓存，重新从云端加载">🧹 清除本机缓存</button>
                         <span class="status" id="hwStatus"></span>
                         <span class="lock-badge" id="hwLockBadge">🔒 已提交</span>
                         <span class="lock-hint" id="hwLockHint">⚠️ 请先填写姓名和学号</span>
@@ -752,7 +760,8 @@
                     <div class="student-bar">
                         <label>👤 姓名：</label><input type="text" id="evalStudentName" placeholder="填写姓名" onchange="onStudentChange('eval')">
                         <label>📚 学号：</label><input type="text" id="evalStudentId" placeholder="填写学号" onchange="onStudentChange('eval')"><span class="stu-id-hint" id="evalStudentIdHint"></span>
-                        <button class="btn" onclick="loadEvaluationData()">📊 生成评价</button>
+                       <button class="btn" onclick="loadEvaluationData()">📊 生成评价</button>
+<button class="btn" onclick="clearMyLocalData('eval')" style="background:#ed8936;margin-left:4px;" title="清除本机缓存，重新从云端加载">🧹 清除本机缓存</button>
                         <button class="btn" style="background:linear-gradient(135deg,#60b0f4,#7c4dff);" onclick="generateAIEvaluation()">🤖 AI建议</button>
                         <span class="status" id="evalStatus"></span>
                     </div>
@@ -7853,6 +7862,145 @@ window.collectFromPreQuiz = function(qid) {
 
     console.log('✅ 困惑监听补丁已加载');
 })();
+// ================================================================
+// 【补丁 16】清除本机缓存（学生端可用，只清当前学号）
+// ================================================================
+window.clearMyLocalData = function(module) {
+    // ---------- 1. 拿到当前学号（按传入的模块优先） ----------
+    const moduleToId = {
+        'pre': 'studentId',
+        'inclass': 'inStudentId',
+        'quiz': 'quizStudentId',
+        'homework': 'hwStudentId',
+        'eval': 'evalStudentId'
+    };
+    let sid = '';
+
+    // 优先用传入模块的输入框
+    if (module && moduleToId[module]) {
+        const el = document.getElementById(moduleToId[module]);
+        if (el && el.value.trim()) sid = el.value.trim();
+    }
+
+    // 兜底：依次尝试其他模块
+    if (!sid) {
+        const candidateIds = ['studentId', 'inStudentId', 'quizStudentId', 'hwStudentId', 'evalStudentId'];
+        for (const id of candidateIds) {
+            const el = document.getElementById(id);
+            if (el && el.value.trim()) { sid = el.value.trim(); break; }
+        }
+    }
+    if (!sid) {
+        alert('⚠️ 请先填写学号，再点"清除本机缓存"。\n\n原因：只清当前学号的缓存，避免误删其他同学的数据。');
+        return;
+    }
+
+    // ---------- 2. 备份上次身份，刷新后自动恢复 ----------
+    const lastIdentity = localStorage.getItem('last_student_identity');
+
+    // ---------- 3. 二次确认 ----------
+    const confirmMsg =
+        '🧹 确定要清除本机缓存吗？\n\n' +
+        '学号：' + sid + '\n\n' +
+        '作用：\n' +
+        '• 清除本机保存的"课前诊断 / 课中探究 / 随堂练习 / 分层作业"缓存\n' +
+        '• 清除本机的"已提交"标记\n' +
+        '• 清除本机的"困惑记录"和"作业题目"缓存\n\n' +
+        '不影响：\n' +
+        '• 云端数据（云端数据不会被删）\n' +
+        '• 教师端看到的数据\n\n' +
+        '清除后刷新页面，本机会重新从云端加载数据。';
+
+    if (!confirm(confirmMsg)) return;
+
+    // ---------- 4. 清 module_* 缓存 ----------
+    let removedCount = 0;
+    Object.keys(localStorage).forEach(k => {
+        if (k.endsWith('_' + sid) && k.startsWith('module_')) {
+            localStorage.removeItem(k);
+            removedCount++;
+        }
+    });
+
+    // ---------- 5. 清 submitted_records ----------
+    try {
+        let records = JSON.parse(localStorage.getItem('submitted_records') || '{}');
+        if (records[sid]) {
+            delete records[sid];
+            localStorage.setItem('submitted_records', JSON.stringify(records));
+            removedCount++;
+        }
+    } catch (e) { console.warn(e); }
+
+    // ---------- 6. 清 confusion_data ----------
+    try {
+        let confusion = JSON.parse(localStorage.getItem('confusion_data') || '{}');
+        if (confusion[sid]) {
+            delete confusion[sid];
+            localStorage.setItem('confusion_data', JSON.stringify(confusion));
+            removedCount++;
+        }
+    } catch (e) { console.warn(e); }
+
+    // ---------- 7. 清草稿缓存 ----------
+    ['pre_answers_draft_', 'quiz_answers_', 'hw_tasks_'].forEach(prefix => {
+        const key = prefix + sid;
+        if (localStorage.getItem(key) !== null) {
+            localStorage.removeItem(key);
+            removedCount++;
+        }
+    });
+
+    // ---------- 8. 清 student_profiles ----------
+    try {
+        let profiles = JSON.parse(localStorage.getItem('student_profiles') || '{}');
+        if (profiles[sid]) {
+            delete profiles[sid];
+            localStorage.setItem('student_profiles', JSON.stringify(profiles));
+            removedCount++;
+        }
+    } catch (e) { console.warn(e); }
+
+    // ---------- 9. 清 conversation_memory ----------
+    try {
+        let memory = JSON.parse(localStorage.getItem('conversation_memory') || '{}');
+        if (memory[sid]) {
+            delete memory[sid];
+            localStorage.setItem('conversation_memory', JSON.stringify(memory));
+            removedCount++;
+        }
+    } catch (e) { console.warn(e); }
+
+    // ---------- 10. 清内存变量 ----------
+    try {
+        if (typeof preAnswers !== 'undefined') { preAnswers = {}; }
+        if (typeof preLocked !== 'undefined') { preLocked = {}; }
+        if (typeof quizAnswers !== 'undefined') { quizAnswers = {}; }
+        if (typeof quizSubmitted !== 'undefined') { quizSubmitted = {0:false,1:false,2:false,3:false}; }
+        if (typeof inModuleTimers !== 'undefined') { inModuleTimers = {0:0,1:0,2:0,3:0}; }
+        if (typeof inModuleStartTimes !== 'undefined') { inModuleStartTimes = {0:null,1:null,2:null,3:null}; }
+        if (typeof studentProfiles !== 'undefined' && studentProfiles[sid]) { delete studentProfiles[sid]; }
+        if (typeof conversationMemory !== 'undefined' && conversationMemory[sid]) { delete conversationMemory[sid]; }
+        if (typeof confusionData !== 'undefined' && confusionData[sid]) { delete confusionData[sid]; }
+    } catch (e) { console.warn(e); }
+
+    // ---------- 11. 恢复上次身份（刷新后自动填姓名学号） ----------
+    if (lastIdentity) {
+        localStorage.setItem('last_student_identity', lastIdentity);
+    }
+
+    // ---------- 12. 反馈 + 刷新 ----------
+    console.log('🧹 清除本机缓存完成，学号：' + sid + '，清除条目：' + removedCount);
+
+    alert(
+        '✅ 清除完成！\n\n' +
+        '学号：' + sid + '\n' +
+        '清除条目数：' + removedCount + '\n\n' +
+        '页面将自动刷新，刷新后本机会重新从云端加载数据。'
+    );
+
+    location.replace(location.href);
+};
     </script>
     
 </body>
