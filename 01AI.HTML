@@ -1685,7 +1685,18 @@ async function getModuleAllSub(studentId, moduleName) {
         localStorage.setItem('confusion_data', JSON.stringify(confusionData));
 
         // 👇 新增：同步到云端
-        const studentName = (studentProfiles[studentId] && studentProfiles[studentId].studentName) || '未命名';
+        // const studentName = (studentProfiles[studentId] && studentProfiles[studentId].studentName) || '未命名';
+       // 优先从输入框拿名字，再兜底从 studentProfiles 拿
+let studentName = '';
+const nameInputMap = { 'pre': 'studentName', 'inclass': 'inStudentName', 'quiz': 'quizStudentName' };
+const nameEl = document.getElementById(nameInputMap[module]);
+if (nameEl && nameEl.value.trim()) {
+    studentName = nameEl.value.trim();
+} else if (studentProfiles[studentId] && studentProfiles[studentId].studentName) {
+    studentName = studentProfiles[studentId].studentName;
+} else {
+    studentName = '未命名';
+}
         saveModuleData(studentId, 'confusion', null, {
             studentId,
             studentName,
