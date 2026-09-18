@@ -1655,46 +1655,59 @@ async function getModuleAllSub(studentId, moduleName) {
     // ================================================================
     function tagConfusion(module, el) { el.classList.toggle('active'); const area = el.closest('.confusion-area'); if (el.classList.contains('active')) { area.querySelectorAll('.tag').forEach(tag => { if (tag !== el) tag.classList.remove('active'); }); } }
 
-    function submitConfusion(module) {
-        const inputMap = { 'pre': 'preConfusionInput', 'inclass': 'inConfusionInput', 'quiz': 'quizConfusionInput' };
-        const studentIdMap = { 'pre': 'studentId', 'inclass': 'inStudentId', 'quiz': 'quizStudentId' };
-        const input = document.getElementById(inputMap[module]);
-        const studentIdEl = document.getElementById(studentIdMap[module]);
-        const text = input.value.trim();
-        const studentId = studentIdEl ? studentIdEl.value.trim() : '';
-        const area = input.closest('.confusion-area');
-        const activeTags = area.querySelectorAll('.tag.active');
-        const selectedTypes = Array.from(activeTags).map(el => el.dataset.type || el.textContent.trim());
-        if (!text && selectedTypes.length === 0) { alert('请描述你的疑问或勾选困惑选项！'); return; }
-        if (!studentId) { alert('请先填写学号！'); return; }
-        const btn = area.querySelector('.btn-confusion');
-        btn.disabled = true;
-        btn.textContent = '⏳ 提交中...';
-        try {
-         if (!confusionData[studentId]) confusionData[studentId] = [];
+   function submitConfusion(module) {
+    const inputMap = { 'pre': 'preConfusionInput', 'inclass': 'inConfusionInput', 'quiz': 'quizConfusionInput' };
+    const studentIdMap = { 'pre': 'studentId', 'inclass': 'inStudentId', 'quiz': 'quizStudentId' };
+    const input = document.getElementById(inputMap[module]);
+    const studentIdEl = document.getElementById(studentIdMap[module]);
+    const text = input.value.trim();
+    const studentId = studentIdEl ? studentIdEl.value.trim() : '';
+    const area = input.closest('.confusion-area');
+    const activeTags = area.querySelectorAll('.tag.active');
+    const selectedTypes = Array.from(activeTags).map(el => el.dataset.type || el.textContent.trim());
 
-// 对于 pre 和 inclass，同一模块只保留最新一条（覆盖旧的）
-const existingIdx = confusionData[studentId].findIndex(e => e.module === module);
-const entry = { module, text: text || '(勾选困惑)', selectedTypes, timestamp: new Date().toISOString() };
-if (existingIdx >= 0) {
-    confusionData[studentId][existingIdx] = entry;  // 覆盖
-} else {
-    confusionData[studentId].push(entry);            // 新增
-}
-localStorage.setItem('confusion_data', JSON.stringify(confusionData));
-            if (input) { input.value = ''; input.placeholder = '✅ 已提交'; }
-            activeTags.forEach(el => el.classList.remove('active'));
-            btn.textContent = '✅ 已提交';
-            btn.style.background = '#48bb78';
-            setTimeout(() => {
-                if (input) { input.placeholder = '还有其他困惑？请描述...'; }
-                btn.textContent = '📤 提交疑问';
-                btn.style.background = '#d69e2e';
-                btn.disabled = false;
-            }, 3000);
-        } catch (error) { btn.textContent = '❌ 提交失败'; setTimeout(() => { btn.textContent = '📤 提交疑问'; btn.disabled = false; }, 2000); }
+    if (!text && selectedTypes.length === 0) { alert('请描述你的疑问或勾选困惑选项！'); return; }
+    if (!studentId) { alert('请先填写学号！'); return; }
+
+    const btn = area.querySelector('.btn-confusion');
+    btn.disabled = true;
+    btn.textContent = '⏳ 提交中...';
+
+    try {
+        if (!confusionData[studentId]) confusionData[studentId] = [];
+        const existingIdx = confusionData[studentId].findIndex(e => e.module === module);
+        const entry = { module, text: text || '(勾选困惑)', selectedTypes, timestamp: new Date().toISOString() };
+        if (existingIdx >= 0) {
+            confusionData[studentId][existingIdx] = entry;
+        } else {
+            confusionData[studentId].push(entry);
+        }
+        localStorage.setItem('confusion_data', JSON.stringify(confusionData));
+
+        // 👇 新增：同步到云端
+        const studentName = (studentProfiles[studentId] && studentProfiles[studentId].studentName) || '未命名';
+        saveModuleData(studentId, 'confusion', null, {
+            studentId,
+            studentName,
+            entries: confusionData[studentId],
+            updatedAt: new Date().toISOString()
+        }).catch(e => console.warn('困惑同步云端失败：', e));
+
+        if (input) { input.value = ''; input.placeholder = '✅ 已提交'; }
+        activeTags.forEach(el => el.classList.remove('active'));
+        btn.textContent = '✅ 已提交';
+        btn.style.background = '#48bb78';
+        setTimeout(() => {
+            if (input) { input.placeholder = '还有其他困惑？请描述...'; }
+            btn.textContent = '📤 提交疑问';
+            btn.style.background = '#d69e2e';
+            btn.disabled = false;
+        }, 3000);
+    } catch (error) {
+        btn.textContent = '❌ 提交失败';
+        setTimeout(() => { btn.textContent = '📤 提交疑问'; btn.disabled = false; }, 2000);
     }
-
+}
     // ================================================================
     // AI连续对话
     // ================================================================
@@ -4497,6 +4510,51 @@ async function openStudentModal(studentId) {
     // ================================================================
     // 教学总结 - 汇总
     // ================================================================
+        // ================================================================
+    // 教学总结 - 汇总
+    // ================================================================
+
+    // 👇 新增：从云端拉取所有学生的困惑，合并到本地 confusionData
+    async function syncConfusionFromCloud() {
+        try {
+            const result = await callCloudFunction('list', {});
+            const rows = result.data || [];
+            let updated = false;
+
+            rows.forEach(r => {
+                if (r.module !== 'confusion') return;
+                const sid = r.studentId;
+                if (!sid) return;
+                const cloudEntries = (r.data && r.data.entries) || [];
+                if (cloudEntries.length === 0) return;
+
+                // 与本地合并（按 module 去重，云端优先）
+                const localEntries = confusionData[sid] || [];
+                const merged = [...localEntries];
+                cloudEntries.forEach(ce => {
+                    const idx = merged.findIndex(le => le.module === ce.module);
+                    if (idx >= 0) {
+                        if (new Date(ce.timestamp) > new Date(merged[idx].timestamp)) {
+                            merged[idx] = ce;
+                        }
+                    } else {
+                        merged.push(ce);
+                    }
+                });
+                confusionData[sid] = merged;
+                updated = true;
+            });
+
+            if (updated) {
+                localStorage.setItem('confusion_data', JSON.stringify(confusionData));
+                console.log('✅ 已从云端同步困惑数据');
+            }
+        } catch (e) {
+            console.warn('同步云端困惑失败：', e);
+        }
+    }
+
+    // 👇 原函数（在里面加了 await syncConfusionFromCloud()）
     async function loadTeacherDashboard() {
         try {
             await loadAllStudentsFromCloud();
@@ -4505,8 +4563,34 @@ async function openStudentModal(studentId) {
             if (classTotalStudents > 0) document.getElementById('classTotalInput').value = classTotalStudents;
             updateClassTotalHint();
 
+            // 👇 新增这一行
+            await syncConfusionFromCloud();
+
             // 五个模块
             generatePreClassAlert();
+            generateRealtimeBoard();
+            await generateClassProfile();
+            await generateStudentTable();
+            renderHomeworkReviewList();
+
+            document.getElementById('teacherLastUpdate').textContent = '最后更新：' + new Date().toLocaleString();
+        } catch (error) {
+            console.error('教师端加载失败：', error);
+        }
+    }
+    async function loadTeacherDashboard() {
+    try {
+        await loadAllStudentsFromCloud();
+        const profiles = JSON.parse(localStorage.getItem('student_profiles') || '{}');
+        studentProfiles = profiles;
+        if (classTotalStudents > 0) document.getElementById('classTotalInput').value = classTotalStudents;
+        updateClassTotalHint();
+
+        // 👇 新增：先把云端困惑拉回本地
+        await syncConfusionFromCloud();
+
+        // 五个模块
+        generatePreClassAlert();
             generateRealtimeBoard();
             await generateClassProfile();
             await generateStudentTable();
