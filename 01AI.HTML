@@ -1655,7 +1655,7 @@ async function getModuleAllSub(studentId, moduleName) {
     // ================================================================
     function tagConfusion(module, el) { el.classList.toggle('active'); const area = el.closest('.confusion-area'); if (el.classList.contains('active')) { area.querySelectorAll('.tag').forEach(tag => { if (tag !== el) tag.classList.remove('active'); }); } }
 
-   function submitConfusion(module) {
+  function submitConfusion(module) {
     const inputMap = { 'pre': 'preConfusionInput', 'inclass': 'inConfusionInput', 'quiz': 'quizConfusionInput' };
     const studentIdMap = { 'pre': 'studentId', 'inclass': 'inStudentId', 'quiz': 'quizStudentId' };
     const nameMap = { 'pre': 'studentName', 'inclass': 'inStudentName', 'quiz': 'quizStudentName' };
