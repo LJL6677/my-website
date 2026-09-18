@@ -600,8 +600,8 @@
                     <div class="inclass-tabs">
                         <button class="inclass-tab active" onclick="switchInTab(0)">🧊 1. 三维建构 <span class="tab-stats">⏱️ <span id="tab-time-0">00:00</span></span></button>
                         <button class="inclass-tab" onclick="switchInTab(1)">📐 2. 变形规律 <span class="tab-stats">⏱️ <span id="tab-time-1">00:00</span></span></button>
-                        <button class="inclass-tab" onclick="switchInTab(2)">🗺️ 3. 分带带宽 <span class="tab-stats">⏱️ <span id="tab-time-2">00:00</span></span></button>
-                        <button class="inclass-tab" onclick="switchInTab(3)">📌 4. 坐标平移 <span class="tab-stats">⏱️ <span id="tab-time-3">00:00</span></span></button>
+                        <!-- <button class="inclass-tab" onclick="switchInTab(2)">🗺️ 3. 分带带宽 <span class="tab-stats">⏱️ <span id="tab-time-2">00:00</span></span></button>  -->
+                        <!-- <button class="inclass-tab" onclick="switchInTab(3)">📌 4. 坐标平移 <span class="tab-stats">⏱️ <span id="tab-time-3">00:00</span></span></button> -->
                     </div>
 
                     <!-- 上下分栏 -->
@@ -670,18 +670,18 @@
                                     <div class="ai-comment-box" id="aiComment2"></div>
                                 </div>
                                 <!-- 模块3 探究 -->
-                                <div id="expPane2" style="display:none;">
+                                <!-- <div id="expPane2" style="display:none;">
                                     <div class="exploration-question">🤔 探究问题：6°带和3°带哪个形变大一些？为什么要分带？</div>
                                     <div class="exploration-hint">💡 提示：从带宽大小与变形的关系思考</div>
                                     <textarea class="exploration-input" id="exploration3" placeholder="写下你的思考..."></textarea>
                                     <div class="exploration-actions">
                                         <button class="btn-exploration-submit" id="submitExp3" onclick="submitExploration(2)">📤 提交探究回答</button>
                                         <span style="font-size:.62rem;color:#888;" id="expStatus3"></span>
-                                    </div>
-                                    <div class="ai-comment-box" id="aiComment3"></div>
-                                </div>
+                                    </div> -->
+                                    <!-- <div class="ai-comment-box" id="aiComment3"></div> -->
+                                <!-- </div> -->
                                 <!-- 模块4 探究 -->
-                                <div id="expPane3" style="display:none;">
+                                <!-- <div id="expPane3" style="display:none;">
                                     <div class="exploration-question">🤔 探究问题：为什么Y坐标要加500km？这个数字有什么特殊含义？</div>
                                     <div class="exploration-hint">💡 提示：观察点B平移前后的坐标变化，思考负值问题</div>
                                     <textarea class="exploration-input" id="exploration4" placeholder="写下你的思考..."></textarea>
@@ -690,7 +690,7 @@
                                         <span style="font-size:.62rem;color:#888;" id="expStatus4"></span>
                                     </div>
                                     <div class="ai-comment-box" id="aiComment4"></div>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>
@@ -1111,7 +1111,8 @@ async function callCloudFunction(action, payload) {
  *                                        如果第 3 个参数是对象，则视为旧格式调用
  * @param {object} [data]
  */
-async function saveModuleData(studentId, moduleName, subModule, data) {
+
+   async function saveModuleData(studentId, moduleName, subModule, data) {
     // 兼容旧调用：saveModuleData(sid, 'pre', data)
     if (typeof subModule === 'object' && subModule !== null && data === undefined) {
         data = subModule;
@@ -1123,20 +1124,26 @@ async function saveModuleData(studentId, moduleName, subModule, data) {
     const cacheKey = `module_${moduleName}_${sub}_${studentId}`;
     localStorage.setItem(cacheKey, JSON.stringify(data));
 
+    // 【修复】优先从 studentProfiles 取学生姓名（防止 data.studentName 为空产生脏数据）
+    let finalName = (data && data.studentName) || '';
+    if (!finalName && typeof studentProfiles !== 'undefined' && studentProfiles[studentId]) {
+        finalName = studentProfiles[studentId].studentName || '';
+    }
+    if (!finalName) finalName = '未命名';
+
     try {
         await callCloudFunction('save', {
             studentId,
-            studentName: data.studentName || '未命名',
+            studentName: finalName,
             module: moduleName,
             subModule: sub,
             data
         });
-        console.log(`✅ ${moduleName}/${sub} 已同步到云端`);
+        console.log(`✅ ${moduleName}/${sub} 已同步到云端（${finalName}）`);
     } catch (e) {
         console.error('云端同步失败：', e);
     }
 }
-
 /**
  * 读取模块数据（单子模块）
  */
@@ -1385,7 +1392,6 @@ async function getModuleAllSub(studentId, moduleName) {
             {id:'quiz4-2',type:'choice',text:'自然坐标Y = -230000m，平移后Y\'值为？',options:['A. 230000m','B. 500000m','C. 270000m','D. 730000m'],correct:'C',points:50,concept:'坐标平移',module:3}
         ]
     };
-
     // 4 个模块的探究问题要点（教师预置，用于 AI 点评）
     const explorationKeyPoints = {
         0: {
@@ -1403,22 +1409,6 @@ async function getModuleAllSub(studentId, moduleName) {
                 { text: '等角是指局部角度不变，不是形状完全不变', keywords: ['局部', '角度', '方向', '不是完全'] },
                 { text: 'K值随离中央经线的距离增大而增大', keywords: ['越远', '越大', '距离', 'K值增大', '变大'] },
                 { text: '变形椭圆随距离变化，离中央经线越远越大', keywords: ['变形椭圆', '椭圆', '离中央经线', '距离'] }
-            ]
-        },
-        2: {
-            question: '6°带和3°带哪个形变大一些？为什么要分带？',
-            keyPoints: [
-                { text: '6°带比3°带变形大（带宽越大变形越大）', keywords: ['6°带', '大', '带宽', '变形大'] },
-                { text: '分带是为了控制变形在允许范围内', keywords: ['控制', '变形', '允许', '限制', '范围'] },
-                { text: '大比例尺测图采用3°带，小比例尺采用6°带', keywords: ['大比例尺', '3°带', '小比例尺', '6°带', '比例尺'] }
-            ]
-        },
-        3: {
-            question: '为什么Y坐标要加500km？这个数字有什么特殊含义？',
-            keyPoints: [
-                { text: '为了避免Y坐标出现负值', keywords: ['负值', '负数', '避免', '不出现'] },
-                { text: '500km是投影带宽度的一半左右，保证平移后为正值', keywords: ['一半', '带宽', '一半以上', '保证正值'] },
-                { text: '加带号形成通用坐标，便于区分不同投影带', keywords: ['带号', '通用坐标', '区分', '不同带'] }
             ]
         }
     };
@@ -2087,6 +2077,7 @@ function closeFloatingHint() {
     // 课中探究 - 模块切换
     // ================================================================
     function switchInTab(idx) {
+                if (idx > 1) return; // 只保留模块1和2
         if (currentInModule === idx) return;
         if (timerInterval) { clearInterval(timerInterval); timerInterval = null; isTimerRunning = false; }
         currentInModule = idx;
@@ -2135,7 +2126,7 @@ function closeFloatingHint() {
 // ================================================================
 async function restoreExplorationAnswers(studentId) {
     const allSub = await getModuleAllSub(studentId, 'inclass');
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 2; i++) {
         const subModule = 'm' + (i + 1);
         const exp = allSub[subModule];
         if (!exp) continue;
@@ -3030,7 +3021,7 @@ async function calculateComprehensiveLevel(studentId) {
     let exploreScore = 0;
     {
         let sum = 0;
-        for (let i = 1; i <= 4; i++) {
+        for (let i = 1; i <= 2; i++) {
             const m = inclassAll['m' + i];
             if (m && m.totalPoints) {
                 sum += (m.coveredCount / m.totalPoints) * 100;
@@ -3038,7 +3029,7 @@ async function calculateComprehensiveLevel(studentId) {
                 sum += 0; // 未交的模块算 0 分
             }
         }
-        exploreScore = Math.round(sum / 4);
+        exploreScore = Math.round(sum / 2);
     }
 
     // ===== 5. 后测分（4 模块平均，未交算 0 分）=====
@@ -3310,12 +3301,11 @@ function renderLearningBehavior(name, id, compData, homeworkData) {
     const inclassTimes = [
         (inclassAll.m1 && inclassAll.m1.timer) || 0,
         (inclassAll.m2 && inclassAll.m2.timer) || 0,
-        (inclassAll.m3 && inclassAll.m3.timer) || 0,
-        (inclassAll.m4 && inclassAll.m4.timer) || 0
+       
     ];
     const totalInclassTime = inclassTimes.reduce((a, b) => a + b, 0);
     const totalTime = readingTime + totalInclassTime;
-    const avgInclass = totalInclassTime / 4;
+    const avgInclass = totalInclassTime / 2;
 
     let timeHtml = '<div style="font-size:.72rem;line-height:1.9;">';
     timeHtml += '<div>📖 课前诊断阅读：<strong>' + formatTime(readingTime) + '</strong></div>';
@@ -3334,13 +3324,16 @@ function renderLearningBehavior(name, id, compData, homeworkData) {
 
     // ----- 2. 提交完整度 -----
     const preOk = !!(preData && preData.answers);
-    const inclassCount = [inclassAll.m1, inclassAll.m2, inclassAll.m3, inclassAll.m4].filter(x => x && x.text).length;
+       const inclassCount = [inclassAll.m1, inclassAll.m2].filter(x => x && x.text).length;
+    // const inclassCount = [inclassAll.m1, inclassAll.m2, inclassAll.m3, inclassAll.m4].filter(x => x && x.text).length;
     const quizCount = [quizAll.m1, quizAll.m2, quizAll.m3, quizAll.m4].filter(x => x && x.answers).length;
+  
     const hwOk = !!(homeworkData && homeworkData.total !== undefined);
 
     let submitHtml = '<div style="font-size:.72rem;line-height:1.9;">';
     submitHtml += '<div>' + (preOk ? '✅' : '❌') + ' 课前诊断：' + (preOk ? '已提交' : '<span style="color:#e53e3e;">未提交</span>') + '</div>';
-    submitHtml += '<div>' + (inclassCount === 4 ? '✅' : '⚠️') + ' 课中探究：' + inclassCount + '/4 模块' + (inclassCount < 4 ? '<span style="color:#e53e3e;">（有遗漏）</span>' : '') + '</div>';
+    // submitHtml += '<div>' + (inclassCount === 4 ? '✅' : '⚠️') + ' 课中探究：' + inclassCount + '/4 模块' + (inclassCount < 4 ? '<span style="color:#e53e3e;">（有遗漏）</span>' : '') + '</div>';
+       submitHtml += '<div>' + (inclassCount === 2 ? '✅' : '⚠️') + ' 课中探究：' + inclassCount + '/2 模块' + (inclassCount < 2 ? '<span style="color:#e53e3e;">（有遗漏）</span>' : '') + '</div>';
     submitHtml += '<div>' + (quizCount === 4 ? '✅' : '⚠️') + ' 随堂练习：' + quizCount + '/4 模块' + (quizCount < 4 ? '<span style="color:#e53e3e;">（有遗漏）</span>' : '') + '</div>';
     submitHtml += '<div>' + (hwOk ? '✅' : '⏳') + ' 分层作业：' + (hwOk ? '已提交' : '<span style="color:#ed8936;">待完成</span>') + '</div>';
     submitHtml += '</div>';
@@ -3453,8 +3446,8 @@ async function generateBehaviorAI(studentId) {
     const inclassTimes = [
         (inclassAll.m1 && inclassAll.m1.timer) || 0,
         (inclassAll.m2 && inclassAll.m2.timer) || 0,
-        (inclassAll.m3 && inclassAll.m3.timer) || 0,
-        (inclassAll.m4 && inclassAll.m4.timer) || 0
+        // (inclassAll.m3 && inclassAll.m3.timer) || 0,
+        // (inclassAll.m4 && inclassAll.m4.timer) || 0
     ];
     const moduleNames = ['三维建构', '变形规律', '分带带宽', '坐标平移'];
     const inclassCount = [inclassAll.m1, inclassAll.m2, inclassAll.m3, inclassAll.m4].filter(x => x && x.text).length;
@@ -3485,7 +3478,7 @@ async function generateBehaviorAI(studentId) {
         '- 总时长：' + formatTime(readingTime + inclassTimes.reduce((a,b)=>a+b,0)) + '\n\n' +
         '## 提交完整度\n' +
         '- 课前诊断：' + (preData.answers ? '已提交' : '未提交') + '\n' +
-        '- 课中探究：' + inclassCount + '/4\n' +
+        '- 课中探究：' + inclassCount + '/2\n' +
         '- 随堂练习：' + quizCount + '/4\n' +
         '- 分层作业：' + (hwOk ? '已提交' : '未提交') + '\n\n' +
         '## 错题\n' +
@@ -3953,7 +3946,7 @@ function generateRealtimeBoard() {
     html += '<div style="background:linear-gradient(135deg,#f0f7ff,#e6f2ff);border-radius:8px;padding:14px;margin-bottom:16px;border-left:4px solid #60b0f4;">';
     html += '<div style="font-size:.95rem;font-weight:700;color:#2b6cb0;margin-bottom:12px;">🧠 课中探究进度 <span style="font-size:.6rem;color:#888;font-weight:400;">（4 模块 · 点击可看学生原话）</span></div>';
 
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 2; i++) {
         const exp = explorationKeyPoints[i];
         const submittedStudents = [];
         const pointCovered = {}, pointTotal = {};
@@ -4301,7 +4294,7 @@ async function openStudentModal(studentId) {
 
     // 探究回答详情（读 subModule）
     let expHtml = '';
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 2; i++) {
         const e = inclassAll['m' + (i + 1)];
         if (e && e.text) {
             const expInfo = explorationKeyPoints[i];
@@ -5412,7 +5405,10 @@ async function doImport(selected) {
         for (const student of data.students) {
             const sid = student.studentId;
             if (sid === 'teacher_bank') continue;
-
+            // 【修复】导入时先写入 studentProfiles，保证后续 saveModuleData 能拿到姓名
+            if (!studentProfiles[sid]) studentProfiles[sid] = { studentId: sid, studentName: student.studentName || '未命名', modules: {} };
+            else if (student.studentName) studentProfiles[sid].studentName = student.studentName;
+            localStorage.setItem('student_profiles', JSON.stringify(studentProfiles));
             if (!records[sid]) records[sid] = {};
 
             for (const sel of selected) {
@@ -7813,6 +7809,44 @@ window.collectFromPreQuiz = function(qid) {
     }
 
     console.log('✅ 课前诊断兜底补丁已加载');
+})();
+// ================================================================
+// 【补丁】监听困惑数据变化，自动重画困惑区（无需刷新）
+// ================================================================
+(function patchConfusionWatcher() {
+    console.log('🔧 困惑数据监听补丁启动...');
+
+    // 保存原始 setItem
+    const origSetItem = localStorage.setItem.bind(localStorage);
+
+    // 重写 setItem：如果改的是 confusion_data，就触发重画
+    localStorage.setItem = function(key, value) {
+        const result = origSetItem(key, value);
+        if (key === 'confusion_data') {
+            console.log('👀 检测到 confusion_data 变化，自动重画困惑区...');
+            setTimeout(() => {
+                const sid = document.getElementById('studentId')?.value.trim();
+                if (sid) {
+                    try {
+                        // 同步内存变量
+                        if (typeof confusionData !== 'undefined') {
+                            confusionData = JSON.parse(value || '{}');
+                        }
+                        if (typeof renderSubmittedConfusions === 'function') renderSubmittedConfusions(sid);
+                        if (typeof restoreConfusionHighlights === 'function') restoreConfusionHighlights(sid);
+                        console.log('✅ 困惑区已自动重画');
+                    } catch(e) { console.warn('自动重画失败：', e); }
+                }
+                // 教师端也刷新
+                try {
+                    if (typeof generatePreClassAlert === 'function') generatePreClassAlert();
+                } catch(e) {}
+            }, 100);
+        }
+        return result;
+    };
+
+    console.log('✅ 困惑监听补丁已加载');
 })();
     </script>
     
