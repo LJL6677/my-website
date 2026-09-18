@@ -4318,68 +4318,265 @@ function getLocalModuleData(studentId, moduleName, subModule) {
    // ================================================================
 // 教师端 - 学生个体画像弹窗（读 subModule 格式）
 // ================================================================
+// ================================================================
+// 教师端 - 学生个体画像弹窗（与学生端"学习评价"保持一致）
+// ================================================================
 async function openStudentModal(studentId) {
     const modal = document.getElementById('studentModal');
     const content = document.getElementById('modalContent');
     const title = document.getElementById('modalTitle');
     const profile = getStudentProfile(studentId);
-    if (!profile) { content.innerHTML = '<p style="color:#888;">未找到数据</p>'; modal.classList.add('active'); return; }
+    if (!profile) {
+        content.innerHTML = '<p style="color:#888;">未找到数据</p>';
+        modal.classList.add('active');
+        return;
+    }
     title.textContent = '📊 ' + (profile.studentName || '学生') + ' · 个人画像';
 
+    // ---------- 1. 拉数据 ----------
     const compData = await calculateComprehensiveLevel(studentId);
     const preData = await getModuleData(studentId, 'pre');
     const inclassAll = await getModuleAllSub(studentId, 'inclass');
     const quizAll = await getModuleAllSub(studentId, 'quiz');
     const homeworkData = await getModuleData(studentId, 'homework');
-    const knowledge = calculateKnowledgeFromData(preData, inclassAll, quizAll);
 
+    // ---------- 2. 五维卡片 ----------
     const dims = [
-        {label:'前测', value:compData.hasPre ? compData.preScore : null, color:'#60b0f4', pending:false},
-        {label:'探究', value:compData.hasInclass ? compData.exploreScore : null, color:'#7c4dff', pending:false},
-        {label:'后测', value:compData.hasQuiz ? compData.quizScore : null, color:'#ed8936', pending:false},
-        {label:'作业', value:compData.hasHomework ? compData.homeworkScore : null, color:'#9f7aea', pending:!compData.hasHomework},
-        {label:'投入', value:compData.totalTime > 0 ? compData.engagementScore : null, color:'#38b2ac', pending:false}
+        { label: '前测', value: compData.hasPre ? compData.preScore : null, color: '#60b0f4', unit: '%', pending: false },
+        { label: '探究', value: compData.hasInclass ? compData.exploreScore : null, color: '#7c4dff', unit: '%', pending: false },
+        { label: '后测', value: compData.hasQuiz ? compData.quizScore : null, color: '#ed8936', unit: '分', pending: false },
+        { label: '作业', value: compData.hasHomework ? compData.homeworkScore : null, color: '#9f7aea', unit: '%', pending: !compData.hasHomework },
+        { label: '投入', value: compData.totalTime > 0 ? compData.engagementScore : null, color: '#38b2ac', unit: '%', pending: false }
     ];
     const dimHtml = dims.map(d => {
-        if (d.pending) return `<div class="modal-dim-item pending"><div class="label">${d.label}</div><div class="value" style="color:#a0aec0;">⏳</div></div>`;
-        return `<div class="modal-dim-item"><div class="label">${d.label}</div><div class="value" style="color:${d.color};">${d.value ?? '—'}${d.label==='后测'?'分':'%'}</div></div>`;
+        if (d.pending) {
+            return `<div class="modal-dim-item pending"><div class="label">${d.label}</div><div class="value" style="color:#a0aec0;">⏳</div></div>`;
+        }
+        return `<div class="modal-dim-item"><div class="label">${d.label}</div><div class="value" style="color:${d.color};">${d.value ?? '—'}${d.unit}</div></div>`;
     }).join('');
 
-    const knowledgeHtml = Object.entries(knowledge).map(([k,v]) => `<div style="display:flex;justify-content:space-between;font-size:.72rem;padding:2px 0;border-bottom:1px solid #edf2f7;"><span>${k}</span><span style="font-weight:700;color:${v>=70?'#38a169':v>=50?'#d69e2e':'#e53e3e'};">${v}%</span></div>`).join('');
+    // ---------- 3. 综合得分信息 ----------
+    const levelScore = compData.hasQuiz ? compData.quizScore : -1;
+    const level = levelScore < 0 ? '未完成' : (levelScore >= 85 ? '优秀' : (levelScore >= 70 ? '良好' : (levelScore >= 50 ? '一般' : '待加强')));
+    const levelColor = levelScore < 0 ? '#718096' : (levelScore >= 85 ? '#38a169' : (levelScore >= 70 ? '#d69e2e' : (levelScore >= 50 ? '#ed8936' : '#e53e3e')));
 
-    // 探究回答详情（读 subModule）
-    let expHtml = '';
-    for (let i = 0; i < 2; i++) {
-        const e = inclassAll['m' + (i + 1)];
-        if (e && e.text) {
-            const expInfo = explorationKeyPoints[i];
-            const covered = e.coveredCount || 0;
-            const totalPts = e.totalPoints || expInfo.keyPoints.length;
-            expHtml += `<div class="exploration-review">
-                <div class="exp-header">📝 模块${i+1}：${expInfo.question.substring(0, 30)}... — 覆盖 ${covered}/${totalPts}</div>
-                <div class="exp-text">${(e.text || '').substring(0, 100)}</div>
-                ${e.aiComment ? '<div class="exp-ai-comment">🤖 ' + e.aiComment.substring(0, 200).replace(/\n/g, '<br>') + '</div>' : ''}
-            </div>`;
-        }
+    // 成长值
+    let growthText = '—';
+    if (compData.growth !== null && compData.growth !== undefined) {
+        growthText = (compData.growth >= 0 ? '+' : '') + compData.growth;
     }
-    if (!expHtml) expHtml = '<div style="color:#888;font-size:.65rem;">暂无探究回答</div>';
 
-    // AI 建议
-    let aiAdvice = '';
-    const weakTopics = Object.entries(knowledge).filter(([k,v]) => v < 60).map(([k]) => k);
-    if (weakTopics.length > 0) aiAdvice = `该生在「${weakTopics.join('、')}」上较弱，建议重点辅导。`;
-    else aiAdvice = '该生各知识点掌握良好。';
-    if (!compData.hasHomework) aiAdvice += ' 作业未完成，建议督促完成。';
+    // ---------- 4. 学习行为诊断（和学生端 renderLearningBehavior 一致） ----------
+    const behaviorHtml = renderLearningBehaviorForModal(studentId, compData, homeworkData);
 
+    // ---------- 5. 组装弹窗（去掉知识点掌握度和探究回答详情） ----------
     content.innerHTML = `
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:16px;">${dimHtml}</div>
-        <div style="font-size:.72rem;color:#888;margin-bottom:12px;">综合得分：<strong style="color:#7c4dff;font-size:1rem;">${compData.comprehensiveScore}分</strong> | 成长：${compData.growth !== null ? (compData.growth >= 0 ? '+' : '') + compData.growth : '—'} | 状态：${compData.isComplete ? '✅ 完整画像' : '⏳ 课中画像（作业待完成）'}</div>
-        <div class="modal-section"><div class="label">⏱️ 学习时间</div><div style="font-size:.75rem;">阅读 ${formatTime(compData.readingTime||0)} · 操作 ${formatTime(compData.operationTime||0)} · 总计 ${formatTime(compData.totalTime||0)}</div></div>
-        <div class="modal-section"><div class="label">🎯 知识点掌握度</div><div style="font-size:.72rem;">${knowledgeHtml}</div></div>
-        <div class="modal-section"><div class="label">🧠 探究回答详情</div>${expHtml}</div>
-        <div class="ai-advice-box" style="margin-top:12px;"><div class="advice-title">🤖 AI 个性化建议</div><div>${aiAdvice}</div></div>
+
+        <div style="font-size:.72rem;color:#888;margin-bottom:12px;">
+            综合得分：<strong style="color:${levelColor};font-size:1rem;">${compData.comprehensiveScore}分</strong>
+            &nbsp;|&nbsp; 等级：<strong style="color:${levelColor};">${level}</strong>
+            &nbsp;|&nbsp; 成长：<strong style="color:${compData.growth >= 0 ? '#38a169' : '#e53e3e'};">${growthText}</strong>
+            &nbsp;|&nbsp; 状态：${compData.isComplete ? '✅ 完整画像' : '⏳ 课中画像（作业待完成）'}
+        </div>
+
+        ${behaviorHtml}
+
+        <div class="ai-advice-box" id="modalAIAdviceBox" style="margin-top:12px;">
+            <div class="advice-title">🤖 AI 个性化学习建议</div>
+            <div id="modalAIAdviceContent" style="font-size:.75rem;line-height:1.7;color:#888;">⏳ 正在生成 AI 建议...</div>
+        </div>
     `;
     modal.classList.add('active');
+
+    // ---------- 6. 生成 AI 建议（复用学生端同一套逻辑） ----------
+    generateAISuggestionForModal(studentId, profile.studentName || '学生', compData, preData, inclassAll, quizAll);
+}
+
+// ================================================================
+// 学习行为诊断（教师端弹窗版，和学生端 renderLearningBehavior 一致）
+// ================================================================
+function renderLearningBehaviorForModal(studentId, compData, homeworkData) {
+    const preData = getLocalModuleData(studentId, 'pre') || {};
+    const inclassAll = {
+        m1: getLocalModuleData(studentId, 'inclass', 'm1'),
+        m2: getLocalModuleData(studentId, 'inclass', 'm2')
+    };
+    const quizAll = {
+        m1: getLocalModuleData(studentId, 'quiz', 'm1'),
+        m2: getLocalModuleData(studentId, 'quiz', 'm2'),
+        m3: getLocalModuleData(studentId, 'quiz', 'm3'),
+        m4: getLocalModuleData(studentId, 'quiz', 'm4')
+    };
+
+    // ----- 1. 学习时间 -----
+    const readingTime = preData.readingTime || 0;
+    const moduleNames = ['三维建构', '变形规律'];
+    const inclassTimes = [
+        (inclassAll.m1 && inclassAll.m1.timer) || 0,
+        (inclassAll.m2 && inclassAll.m2.timer) || 0
+    ];
+    const totalInclassTime = inclassTimes.reduce((a, b) => a + b, 0);
+    const totalTime = readingTime + totalInclassTime;
+    const avgInclass = totalInclassTime / 2;
+
+    let timeHtml = '<div style="font-size:.72rem;line-height:1.9;">';
+    timeHtml += '<div>📖 课前诊断阅读：<strong>' + formatTime(readingTime) + '</strong></div>';
+    timeHtml += '<div>💻 课中探究总时长：<strong>' + formatTime(totalInclassTime) + '</strong>（平均 ' + formatTime(Math.round(avgInclass)) + '）</div>';
+    timeHtml += '<div style="padding-left:16px;font-size:.68rem;color:#666;">';
+    moduleNames.forEach((n, i) => {
+        const t = inclassTimes[i];
+        const shortTime = t > 0 && t < avgInclass * 0.7;
+        const color = shortTime ? '#e53e3e' : '#4a5568';
+        const warn = shortTime ? ' ⚠️ 偏短' : '';
+        timeHtml += '├─ 模块' + (i + 1) + ' ' + n + '：<span style="color:' + color + ';">' + formatTime(t) + warn + '</span><br>';
+    });
+    timeHtml += '</div>';
+    timeHtml += '<div style="margin-top:4px;border-top:1px dashed #e2e8f0;padding-top:4px;">⏱️ 总计：<strong>' + formatTime(totalTime) + '</strong></div>';
+    timeHtml += '</div>';
+
+    // ----- 2. 提交完整度 -----
+    const preOk = !!(preData && preData.answers);
+    const inclassCount = [inclassAll.m1, inclassAll.m2].filter(x => x && x.text).length;
+    const quizCount = [quizAll.m1, quizAll.m2, quizAll.m3, quizAll.m4].filter(x => x && x.answers).length;
+    const hwOk = !!(homeworkData && homeworkData.total !== undefined);
+
+    let submitHtml = '<div style="font-size:.72rem;line-height:1.9;">';
+    submitHtml += '<div>' + (preOk ? '✅' : '❌') + ' 课前诊断：' + (preOk ? '已提交' : '<span style="color:#e53e3e;">未提交</span>') + '</div>';
+    submitHtml += '<div>' + (inclassCount === 2 ? '✅' : '⚠️') + ' 课中探究：' + inclassCount + '/2 模块' + (inclassCount < 2 ? '<span style="color:#e53e3e;">（有遗漏）</span>' : '') + '</div>';
+    submitHtml += '<div>' + (quizCount === 4 ? '✅' : '⚠️') + ' 随堂练习：' + quizCount + '/4 模块' + (quizCount < 4 ? '<span style="color:#e53e3e;">（有遗漏）</span>' : '') + '</div>';
+    submitHtml += '<div>' + (hwOk ? '✅' : '⏳') + ' 分层作业：' + (hwOk ? '已提交' : '<span style="color:#ed8936;">待完成</span>') + '</div>';
+    submitHtml += '</div>';
+
+    // ----- 3. 薄弱点 -----
+    const weakPoints = [];
+    if (preData && preData.wrongDetails) {
+        preData.wrongDetails.forEach(w => {
+            weakPoints.push({ topic: w.topic || '基础知识', source: '课前诊断', detail: w.text });
+        });
+    }
+    [quizAll.m1, quizAll.m2, quizAll.m3, quizAll.m4].forEach((qd, i) => {
+        if (!qd || !qd.answers) return;
+        const questions = (typeof quizQuestionsByModule !== 'undefined' && quizQuestionsByModule[i]) || [];
+        questions.forEach(q => {
+            const userAns = qd.answers[q.id];
+            if (userAns && userAns !== q.correct) {
+                weakPoints.push({ topic: q.concept || '随堂知识点', source: '随堂练习-模块' + (i + 1), detail: q.text });
+            }
+        });
+    });
+
+    let weakHtml = '';
+    if (weakPoints.length === 0) {
+        weakHtml = '<div style="color:#276749;font-size:.72rem;padding:6px 10px;background:#f0fff4;border-radius:4px;">🎉 未发现明显薄弱点，知识掌握良好</div>';
+    } else {
+        weakHtml = '<div style="font-size:.7rem;line-height:1.7;">';
+        weakPoints.slice(0, 5).forEach(w => {
+            weakHtml += '<div style="padding:4px 0;border-bottom:1px dashed #edf2f7;">';
+            weakHtml += '<span style="background:#fff5f5;color:#c53030;padding:1px 8px;border-radius:8px;font-size:.6rem;">' + w.topic + '</span>';
+            weakHtml += ' <span style="color:#888;font-size:.6rem;">（来自' + w.source + '）</span>';
+            if (w.detail) {
+                weakHtml += '<div style="font-size:.65rem;color:#4a5568;margin-top:2px;line-height:1.5;white-space:normal;">📌 ' + w.detail + '</div>';
+            }
+            weakHtml += '</div>';
+        });
+        if (weakPoints.length > 5) {
+            weakHtml += '<div style="font-size:.6rem;color:#888;text-align:right;margin-top:4px;">（还有 ' + (weakPoints.length - 5) + ' 个薄弱点）</div>';
+        }
+        weakHtml += '</div>';
+    }
+
+    // ----- 组装 -----
+    return '<div style="background:#f8fafc;padding:12px;border-radius:6px;margin-bottom:12px;">' +
+        '<div style="font-weight:700;color:#2d3748;font-size:.78rem;margin-bottom:8px;">🔍 学习行为诊断 <span style="font-size:.55rem;color:#888;font-weight:400;">（时间 / 完整度 / 薄弱点）</span></div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">' +
+            '<div style="background:#fff;padding:10px 12px;border-radius:6px;">' +
+                '<div style="font-weight:700;color:#2d3748;font-size:.72rem;margin-bottom:6px;">⏱️ 学习时间分布</div>' +
+                timeHtml +
+            '</div>' +
+            '<div style="background:#fff;padding:10px 12px;border-radius:6px;">' +
+                '<div style="font-weight:700;color:#2d3748;font-size:.72rem;margin-bottom:6px;">📝 提交完整度</div>' +
+                submitHtml +
+            '</div>' +
+        '</div>' +
+        '<div style="background:#fff5f5;padding:10px 12px;border-radius:6px;">' +
+            '<div style="font-weight:700;color:#9b2c2c;font-size:.72rem;margin-bottom:6px;">❌ 薄弱点（来自错题）</div>' +
+            weakHtml +
+        '</div>' +
+    '</div>';
+}
+
+// ================================================================
+// AI 建议生成（教师端弹窗版，复用学生端 generateAIEvaluationForStudent 的逻辑）
+// ================================================================
+async function generateAISuggestionForModal(studentId, studentName, compData, preData, inclassAll, quizAll) {
+    const container = document.getElementById('modalAIAdviceContent');
+    if (!container) return;
+
+    try {
+        // 收集薄弱点
+        const weakPoints = [];
+        if (preData && preData.weakTopics) {
+            preData.weakTopics.forEach(t => weakPoints.push(t));
+        }
+        // 从随堂练习提取
+        [quizAll.m1, quizAll.m2, quizAll.m3, quizAll.m4].forEach((qd, i) => {
+            if (!qd || !qd.answers) return;
+            const questions = (typeof quizQuestionsByModule !== 'undefined' && quizQuestionsByModule[i]) || [];
+            questions.forEach(q => {
+                const userAns = qd.answers[q.id];
+                if (userAns && userAns !== q.correct) {
+                    if (q.concept && !weakPoints.includes(q.concept)) weakPoints.push(q.concept);
+                }
+            });
+        });
+
+        // 优势
+        const strongPoints = [];
+        if (preData && preData.knowledge) {
+            Object.entries(preData.knowledge).forEach(([k, v]) => {
+                if (v >= 80) strongPoints.push(k);
+            });
+        }
+
+        const prompt = `你是一位测量与地图学课程的AI教师。为学生${studentName}（学号${studentId}）生成个性化学习建议。
+
+## 学生五维数据
+- 综合得分：${compData.comprehensiveScore}分
+- 前测：${compData.hasPre ? compData.preScore + '%' : '未提交'}
+- 探究：${compData.hasInclass ? compData.exploreScore + '%' : '未提交'}
+- 后测：${compData.hasQuiz ? compData.quizScore + '分' : '未提交'}
+- 作业：${compData.hasHomework ? compData.homeworkScore + '%' : '待完成'}
+- 投入：${compData.totalTime > 0 ? compData.engagementScore + '%' : '暂无'}
+
+## 薄弱知识点
+${weakPoints.length > 0 ? weakPoints.join('、') : '无'}
+
+## 优势知识点
+${strongPoints.length > 0 ? strongPoints.join('、') : '无'}
+
+## 请生成（200字左右）
+1. 总体评价
+2. 优势与不足
+3. 3条可操作建议
+4. 下一阶段重点
+
+请用亲切、鼓励的语气。`;
+
+        const messages = [
+            { role: 'system', content: '你是测量与地图学课程的AI教师，擅长个性化学习指导。' },
+            { role: 'user', content: prompt }
+        ];
+        let full = '';
+        await callDeepSeek(messages, (chunk) => {
+            full += chunk;
+            container.innerHTML = full.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            container.style.color = '#4a5568';
+        });
+    } catch (e) {
+        container.innerHTML = '⚠️ AI建议生成失败：' + e.message;
+        container.style.color = '#ed8936';
+    }
 }
 
     function closeStudentModal() { document.getElementById('studentModal').classList.remove('active'); }
