@@ -3573,6 +3573,8 @@ ${knowledgeStr}
    
         const container = document.getElementById('preClassAlertContent');
      function generatePreClassAlert() {
+        confusionData = JSON.parse(localStorage.getItem('confusion_data') || '{}');
+        // confusionData = JSON.parse(localStorage.getItem('confusion_data') || '{}');
     const container = document.getElementById('preClassAlertContent');
     if (!container) return;
     const allStudentIds = Object.keys(studentProfiles);
@@ -6386,6 +6388,7 @@ console.log('✅ 数据管理模块（3-C）已加载');
 
     // ---------- 2. 渲染"已提交的困惑" ----------
     function renderSubmittedConfusions(studentId) {
+        confusionData = JSON.parse(localStorage.getItem('confusion_data') || '{}');
         const display = ensureDisplayArea();
         if (!display) return;
        const entries = confusionData[studentId] || [];
@@ -6476,7 +6479,9 @@ if (latest.text && latest.text !== '(勾选困惑)') texts.push(latest.text);
 
     // ---------- 恢复高亮 ----------
     function restoreHighlights(studentId) {
+        confusionData = JSON.parse(localStorage.getItem('confusion_data') || '{}');
         // 清掉所有旧的 selected-history 标记
+
         document.querySelectorAll('#preConfusionTags .tag').forEach(t => {
             t.classList.remove('selected-history');
         });
